@@ -3,7 +3,10 @@ from types import TracebackType
 from typing import TYPE_CHECKING, Any, TypeVar
 
 import httpx
-from src.authenticated_hive_client import _AuthenticatedHiveClient  # pyright: ignore[reportPrivateUsage]
+
+from src.authenticated_hive_client import (
+    _AuthenticatedHiveClient,  # pyright: ignore[reportPrivateUsage]
+)
 from src.types.class_ import Class
 from src.types.enums.class_type_enum import ClassTypeEnum
 from src.types.exercise import Exercise
@@ -22,7 +25,13 @@ CoreItemType = TypeVar("CoreItemType", bound="HiveCoreItem")
 class HiveClient(_AuthenticatedHiveClient):
     """HTTP client for accessing Hive API."""
 
-    def __init__(self, username: str, password: str, hive_url: str, **kwargs: Any) -> None:
+    def __init__(
+        self,
+        username: str,
+        password: str,
+        hive_url: str,
+        **kwargs: Any,
+    ) -> None:
         super().__init__(username, password, hive_url, **kwargs)
 
     def __enter__(self) -> "HiveClient":
@@ -37,29 +46,47 @@ class HiveClient(_AuthenticatedHiveClient):
     ) -> bool | None:
         return super().__exit__(type_, value, traceback)
 
-    def get_course_programs(self, id__in: list[int] | None = None) -> Generator[Program]:
+    def get_course_programs(
+        self,
+        id__in: list[int] | None = None,
+    ) -> Generator[Program]:
         query_params = httpx.QueryParams()
         if id__in is not None:
             query_params.set("id__in", id__in)
         return (
             Program.from_dict(program_dict, hive_client=self)
-            for program_dict in super().get("/api/core/course/programs/", params=query_params)
+            for program_dict in super().get(
+                "/api/core/course/programs/",
+                params=query_params,
+            )
         )
 
     def get_program(self, program_id: int) -> Program:
-        return Program.from_dict(super().get(f"/api/core/course/programs/{program_id}/"), hive_client=self)
+        return Program.from_dict(
+            super().get(f"/api/core/course/programs/{program_id}/"),
+            hive_client=self,
+        )
 
-    def get_course_subjects(self, parent_program__id__in: list[int] | None = None) -> Generator[Subject]:
+    def get_course_subjects(
+        self,
+        parent_program__id__in: list[int] | None = None,
+    ) -> Generator[Subject]:
         query_params = httpx.QueryParams()
         if parent_program__id__in is not None:
             query_params.set("parent_program__id__in", parent_program__id__in)
         return (
             Subject.from_dict(subject_dict, hive_client=self)
-            for subject_dict in super().get("/api/core/course/subjects/", params=query_params)
+            for subject_dict in super().get(
+                "/api/core/course/subjects/",
+                params=query_params,
+            )
         )
 
     def get_subject(self, subject_id: int) -> Subject:
-        return Subject.from_dict(super().get(f"/api/core/course/subjects/{subject_id}/"), hive_client=self)
+        return Subject.from_dict(
+            super().get(f"/api/core/course/subjects/{subject_id}/"),
+            hive_client=self,
+        )
 
     def get_course_modules(
         self,
@@ -69,17 +96,26 @@ class HiveClient(_AuthenticatedHiveClient):
     ) -> Generator[Module]:
         query_params = httpx.QueryParams()
         if parent_subject__parent_program__id__in is not None:
-            query_params.set("parent_subject__parent_program__id__in", parent_subject__parent_program__id__in)
+            query_params.set(
+                "parent_subject__parent_program__id__in",
+                parent_subject__parent_program__id__in,
+            )
         if parent_subject__id is not None:
             query_params.set("parent_subject__id", parent_subject__id)
 
         return (
             Module.from_dict(subject_dict, hive_client=self)
-            for subject_dict in super().get("/api/core/course/modules/", params=query_params)
+            for subject_dict in super().get(
+                "/api/core/course/modules/",
+                params=query_params,
+            )
         )
 
     def get_module(self, module_id: int) -> Module:
-        return Module.from_dict(super().get(f"/api/core/course/modules/{module_id}/"), hive_client=self)
+        return Module.from_dict(
+            super().get(f"/api/core/course/modules/{module_id}/"),
+            hive_client=self,
+        )
 
     def get_exercises(
         self,
@@ -101,7 +137,10 @@ class HiveClient(_AuthenticatedHiveClient):
         )
 
     def get_exercise(self, exercise_id: int) -> Exercise:
-        return Exercise.from_dict(super().get(f"/api/core/course/exercises/{exercise_id}/"), hive_client=self)
+        return Exercise.from_dict(
+            super().get(f"/api/core/course/exercises/{exercise_id}/"),
+            hive_client=self,
+        )
 
     def get_users(
         self,
@@ -127,7 +166,10 @@ class HiveClient(_AuthenticatedHiveClient):
         )
 
     def get_user(self, user_id: int) -> User:
-        return User.from_dict(super().get(f"/api/core/management/users/{user_id}/"), hive_client=self)
+        return User.from_dict(
+            super().get(f"/api/core/management/users/{user_id}/"),
+            hive_client=self,
+        )
 
     def get_classes(
         self,
@@ -159,7 +201,10 @@ class HiveClient(_AuthenticatedHiveClient):
             requests.HTTPError: If the API request fails or returns an error response.
 
         """
-        return Class.from_dict(super().get(f"/api/core/management/classes/{class_id}/"), hive_client=self)
+        return Class.from_dict(
+            super().get(f"/api/core/management/classes/{class_id}/"),
+            hive_client=self,
+        )
 
     def get_exercise_fields(self, exercise_id: int) -> Generator[FormField]:
         return self._get_core_items(
