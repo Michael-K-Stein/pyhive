@@ -24,9 +24,7 @@ T = TypeVar("T", bound="User")
 
 
 @_attrs_define
-class User(
-    HiveCoreItem
-):  # pylint: disable=too-many-instance-attributes
+class User(HiveCoreItem):  # pylint: disable=too-many-instance-attributes
     """Hive management course user.
 
     Attributes:
@@ -112,11 +110,9 @@ class User(
     teacher: Unset | bool = UNSET
     hostname: Unset | str = UNSET
 
-    def to_dict(
+    def to_dict(  # pylint: disable=too-many-locals, too-many-statements, too-many-branches
         self,
-    ) -> dict[
-        str, Any
-    ]:  # pylint: disable=too-many-locals, too-many-statements, too-many-branches
+    ) -> dict[str, Any]:
         id = self.id
 
         display_name = self.display_name
@@ -235,7 +231,8 @@ class User(
         return field_dict
 
     @classmethod
-    def from_dict(cls, src_dict: Mapping[str, Any], hive_client: "HiveClient") -> Self:
+    def from_dict(cls, src_dict: Mapping[str, Any], hive_client: "HiveClient") -> Self: # pylint: disable=too-many-locals
+        """Deserialize a User instance from a mapping."""
         d = dict(src_dict)
         id = d.pop("id")
 

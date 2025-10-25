@@ -1,7 +1,11 @@
+"""EventAttendeesType0Item type class module."""
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Self, TypeVar
 
 from attrs import define as _attrs_define
+
+from src.types.core_item import HiveCoreItem
 from src.types.common import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -11,7 +15,7 @@ T = TypeVar("T", bound="EventAttendeesType0Item")
 
 
 @_attrs_define
-class EventAttendeesType0Item:
+class EventAttendeesType0Item(HiveCoreItem):
     """Attributes:
     name (str):
     id (int):

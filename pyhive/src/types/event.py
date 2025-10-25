@@ -15,6 +15,7 @@ from src.types.core_item import HiveCoreItem
 from src.types.enums.event_type_enum import EventTypeEnum
 
 if TYPE_CHECKING:
+    from client import HiveClient
     from src.types.event_attendees_type_0_item import EventAttendeesType0Item
 
 T = TypeVar("T", bound="Event")
@@ -56,7 +57,11 @@ class Event(HiveCoreItem):
         end = self.end.isoformat()
 
         attendees: None | list[dict[str, Any]]
-        attendees = [a.to_dict() for a in self.attendees] if isinstance(self.attendees, list) else self.attendees
+        attendees = (
+            [a.to_dict() for a in self.attendees]
+            if isinstance(self.attendees, list)
+            else self.attendees
+        )
 
         location = UNSET if isinstance(self.location, Unset) else self.location
 
@@ -79,7 +84,7 @@ class Event(HiveCoreItem):
         return field_dict
 
     @classmethod
-    def from_dict(cls, src_dict: Mapping[str, Any]) -> Self:
+    def from_dict(cls, src_dict: Mapping[str, Any], hive_client: "HiveClient") -> Self:
         from src.types.event_attendees_type_0_item import EventAttendeesType0Item
 
         d = dict(src_dict)

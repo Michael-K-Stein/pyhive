@@ -30,9 +30,9 @@ class QueueItem(HiveCoreItem):
     continue_on_redo: Unset | bool = UNSET
 
     def to_dict(self) -> dict[str, Any]:
-        from src.types.exercise import (
+        from src.types.exercise import (  # pylint: disable=import-outside-toplevel
             Exercise,
-        )  # pylint: disable=import-outside-toplevel
+        )
         from src.types.queue import Queue  # pylint: disable=import-outside-toplevel
 
         return {

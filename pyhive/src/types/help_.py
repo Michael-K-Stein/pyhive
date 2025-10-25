@@ -86,9 +86,9 @@ class Help(HiveCoreItem):
 
         # Import locally to avoid circular imports at module import time.
         # Keep the import local but silence pylint's import-outside-toplevel.
-        from src.types.exercise import (
+        from src.types.exercise import (  # pylint: disable=import-outside-toplevel
             Exercise,
-        )  # pylint: disable=import-outside-toplevel
+        )
 
         # Keep the attribute name `id` as generated; silence redefined-builtin warning.
         id = self.id  # pylint: disable=redefined-builtin
@@ -154,9 +154,9 @@ class Help(HiveCoreItem):
         return field_dict
 
     @classmethod
-    def from_dict(
+    def from_dict(  # pylint: disable=too-many-locals
         cls, src_dict: Mapping[str, Any], hive_client: "HiveClient"
-    ) -> Self:  # pylint: disable=too-many-locals
+    ) -> Self:
         """Deserialize a Help instance from a mapping.
 
         Args:
@@ -168,15 +168,15 @@ class Help(HiveCoreItem):
         """
 
         # Local imports to avoid runtime import cycles; keep but silence pylint.
-        from src.types.help_response_segel_nested import (
+        from src.types.help_response_segel_nested import (  # pylint: disable=import-outside-toplevel
             HelpResponseSegelNested,
-        )  # pylint: disable=import-outside-toplevel
-        from src.types.notification_nested import (
+        )
+        from src.types.notification_nested import (  # pylint: disable=import-outside-toplevel
             NotificationNested,
-        )  # pylint: disable=import-outside-toplevel
+        )
 
         d = dict(src_dict)
-        id = d.pop("id")  # pylint: disable=redefined-builtin
+        id = d.pop("id")
 
         user_id = d.pop("user")
 
