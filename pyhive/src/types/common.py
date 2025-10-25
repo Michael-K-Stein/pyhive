@@ -7,7 +7,9 @@ from typing import IO, BinaryIO, Generic, Literal, TypeVar, Union
 from attrs import define
 
 
-class Unset:
+class Unset:  # pylint: disable=too-few-public-methods
+    """Sentinel type for unset optional values."""
+
     def __bool__(self) -> Literal[False]:
         return False
 

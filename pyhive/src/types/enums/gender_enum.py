@@ -1,7 +1,11 @@
+"""Enumeration for gender types."""
+
 from enum import Enum
 
 
 class GenderEnum(str, Enum):
+    """Enumeration of gender types."""
+
     FEMALE = "Female"
     MALE = "Male"
     NONBINARY = "NonBinary"

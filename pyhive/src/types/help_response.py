@@ -57,7 +57,8 @@ class HelpResponse(HiveCoreItem):
     def user(self) -> "User":
         """Returns the User object associated with this instance.
 
-        If the User object has not been retrieved yet, it fetches the user using the hive_client and caches it for future calls.
+        If the User object has not been retrieved yet,
+         it fetches the user using the hive_client and caches it for future calls.
 
         Returns:
             User: The user associated with this instance.

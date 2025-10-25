@@ -1,7 +1,10 @@
+"""Module defining the Tag class for Hive tags."""
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Self, TypeVar
 
 from attrs import define as _attrs_define
+from src.types.core_item import HiveCoreItem
 
 if TYPE_CHECKING:
     from client import HiveClient
@@ -10,7 +13,7 @@ T = TypeVar("T", bound="Tag")
 
 
 @_attrs_define
-class Tag:
+class Tag(HiveCoreItem):
     """Attributes:
     id (int):
     name (str):

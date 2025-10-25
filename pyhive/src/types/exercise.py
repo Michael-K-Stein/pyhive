@@ -1,3 +1,5 @@
+"""Model for exercises in course modules."""
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Self, TypeVar, cast
 
@@ -163,7 +165,9 @@ class Exercise(HiveCoreItem):
             sync_message=cast("str | None", d["sync_message"]),
             segel_path=d["segel_path"],
             patbas_preview=(
-                UNSET if isinstance((val := d.get("patbas_preview", UNSET)), Unset) else ExercisePreviewTypes(val)
+                UNSET
+                if isinstance((val := d.get("patbas_preview", UNSET)), Unset)
+                else ExercisePreviewTypes(val)
             ),
             patbas_download=d.get("patbas_download", UNSET),
             is_lecture=d.get("is_lecture", UNSET),
@@ -171,7 +175,9 @@ class Exercise(HiveCoreItem):
             on_creation_data=d.get("on_creation_data", UNSET),
             autocheck_tag=cast("str | None | Unset", d.get("autocheck_tag", UNSET)),
             autodone=d.get("autodone", UNSET),
-            expected_duration=cast("str | None | Unset", d.get("expected_duration", UNSET)),
+            expected_duration=cast(
+                "str | None | Unset", d.get("expected_duration", UNSET)
+            ),
             segel_brief=cast("str | Unset", d.get("segel_brief", UNSET)),
         )
 

@@ -1,7 +1,11 @@
+"""StatusEnum class representing various user statuses."""
+
 from enum import Enum
 
 
 class StatusEnum(str, Enum):
+    """Enumeration of user statuses."""
+
     HOME = "Home"
     MEDICAL = "Medical"
     PERSONAL_TALK = "Personal Talk"

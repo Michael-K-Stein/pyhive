@@ -1,3 +1,9 @@
+"""Model for student help requests (auto-generated).
+
+This module defines the :class:`Help` model used to represent student
+help requests and provides serialization helpers.
+"""
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Self, TypeVar, Union, cast
 
@@ -7,6 +13,7 @@ from src.types.common import UNSET, Unset
 from src.types.enums.help_status_enum import HelpStatusEnum
 from src.types.enums.help_type_enum import HelpTypeEnum
 from src.types.enums.visibility_enum import VisibilityEnum
+from src.types.core_item import HiveCoreItem
 
 if TYPE_CHECKING:
     from client import HiveClient
@@ -20,7 +27,7 @@ T = TypeVar("T", bound="Help")
 
 
 @_attrs_define
-class Help:
+class Help(HiveCoreItem):
     """A student's help request.
 
     Attributes:
@@ -70,10 +77,21 @@ class Help:
     title: Unset | str = UNSET
     visibility: Unset | VisibilityEnum = UNSET
 
-    def to_dict(self) -> dict[str, Any]:
-        from src.types.exercise import Exercise
+    def to_dict(self) -> dict[str, Any]:  # pylint: disable=too-many-locals
+        """Serialize this Help instance to a plain dictionary.
 
-        id = self.id
+        Returns:
+            A JSON-serializable mapping representing this help request.
+        """
+
+        # Import locally to avoid circular imports at module import time.
+        # Keep the import local but silence pylint's import-outside-toplevel.
+        from src.types.exercise import (
+            Exercise,
+        )  # pylint: disable=import-outside-toplevel
+
+        # Keep the attribute name `id` as generated; silence redefined-builtin warning.
+        id = self.id  # pylint: disable=redefined-builtin
 
         user = self.user
 
@@ -90,7 +108,11 @@ class Help:
         help_status = self.help_status.value
 
         for_exercise: None | dict[str, Any]
-        for_exercise = self.for_exercise.to_dict() if isinstance(self.for_exercise, Exercise) else self.for_exercise
+        for_exercise = (
+            self.for_exercise.to_dict()
+            if isinstance(self.for_exercise, Exercise)
+            else self.for_exercise
+        )
 
         responses: list[dict[str, Any]] = []
         for responses_item_data in self.responses:
@@ -132,12 +154,29 @@ class Help:
         return field_dict
 
     @classmethod
-    def from_dict(cls, src_dict: Mapping[str, Any], hive_client: "HiveClient") -> Self:
-        from src.types.help_response_segel_nested import HelpResponseSegelNested
-        from src.types.notification_nested import NotificationNested
+    def from_dict(
+        cls, src_dict: Mapping[str, Any], hive_client: "HiveClient"
+    ) -> Self:  # pylint: disable=too-many-locals
+        """Deserialize a Help instance from a mapping.
+
+        Args:
+            src_dict: The source mapping (typically parsed JSON).
+            hive_client: The HiveClient used for lazy-loading related objects.
+
+        Returns:
+            A populated :class:`Help` instance.
+        """
+
+        # Local imports to avoid runtime import cycles; keep but silence pylint.
+        from src.types.help_response_segel_nested import (
+            HelpResponseSegelNested,
+        )  # pylint: disable=import-outside-toplevel
+        from src.types.notification_nested import (
+            NotificationNested,
+        )  # pylint: disable=import-outside-toplevel
 
         d = dict(src_dict)
-        id = d.pop("id")
+        id = d.pop("id")  # pylint: disable=redefined-builtin
 
         user_id = d.pop("user")
 
@@ -165,18 +204,23 @@ class Help:
                 if not isinstance(data, dict):
                     raise TypeError
                 return cast("int", data["id"])
-            except:  # noqa: E722
-                pass
+            except Exception:  # pylint: disable=broad-except
+                # When the structure is unexpected, treat as missing.
+                return None
 
         for_exercise_id = _parse_for_exercise(d.pop("for_exercise"))
 
         responses = [
-            HelpResponseSegelNested.from_dict(responses_item_data, hive_client=hive_client)
+            HelpResponseSegelNested.from_dict(
+                responses_item_data, hive_client=hive_client
+            )
             for responses_item_data in d.pop("responses")
         ]
 
         notifications: list[NotificationNested] = [
-            NotificationNested.from_dict(notifications_item_data, hive_client=hive_client)
+            NotificationNested.from_dict(
+                notifications_item_data, hive_client=hive_client
+            )
             for notifications_item_data in d.pop("notifications")
         ]
 
@@ -184,7 +228,9 @@ class Help:
 
         _visibility = d.pop("visibility", UNSET)
         visibility: Unset | VisibilityEnum
-        visibility = UNSET if isinstance(_visibility, Unset) else VisibilityEnum(_visibility)
+        visibility = (
+            UNSET if isinstance(_visibility, Unset) else VisibilityEnum(_visibility)
+        )
 
         return cls(
             id=id,
@@ -205,6 +251,11 @@ class Help:
 
     @property
     def for_exercise(self) -> Union["Exercise", None]:
+        """Lazily load and return the related Exercise, if any.
+
+        Returns:
+            The resolved :class:`Exercise` instance or None when not set.
+        """
         if self.for_exercise_id is None:
             return None
         if self._for_exercise is None:

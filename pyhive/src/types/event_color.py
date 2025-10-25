@@ -1,7 +1,9 @@
+"""Module for EventColor type."""
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Self, TypeVar
 
-from attrs import define as _attrs_define
+from attrs import define
 
 if TYPE_CHECKING:
     from client import HiveClient
@@ -9,7 +11,7 @@ if TYPE_CHECKING:
 T = TypeVar("T", bound="EventColor")
 
 
-@_attrs_define
+@define
 class EventColor:
     """Attributes:
     id (int):
@@ -24,6 +26,7 @@ class EventColor:
     hive_client: "HiveClient"
 
     def to_dict(self) -> dict[str, Any]:
+        """Converts the EventColor instance to a dictionary."""
         id = self.id
 
         name = self.name
@@ -43,6 +46,7 @@ class EventColor:
 
     @classmethod
     def from_dict(cls, src_dict: Mapping[str, Any], hive_client: "HiveClient") -> Self:
+        """Creates an EventColor instance from a dictionary."""
         d = dict(src_dict)
         id = d.pop("id")
 

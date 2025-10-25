@@ -1,0 +1,13 @@
+[MASTER]
+init-hook='import sys; sys.path.append("./pyhive")'
+
+[FORMAT]
+max-line-length=120
+
+[DESIGN]
+max-attributes=30
+
+[MESSAGES CONTROL]
+allowed-redefined-builtins=id
+
+# You can add more pylint configuration here as needed.

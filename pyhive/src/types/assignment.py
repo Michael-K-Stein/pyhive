@@ -9,11 +9,11 @@ from dateutil.parser import isoparse
 from src.types.common import UNSET, Unset
 from src.types.core_item import HiveCoreItem
 from src.types.enums.assignment_status_enum import AssignmentStatusEnum
+from src.types.notification_nested import NotificationNested
 
 if TYPE_CHECKING:
     from client import HiveClient
     from src.types.exercise import Exercise
-    from src.types.notification_nested import NotificationNested
     from src.types.user import User
 
 T = TypeVar("T", bound="Assignment")
@@ -134,15 +134,18 @@ class Assignment(HiveCoreItem):
     @classmethod
     def from_dict(cls, src_dict: Mapping[str, Any], hive_client: "HiveClient") -> Self:
         """Deserialize Assignment from a dictionary."""
-        from src.types.notification_nested import NotificationNested
 
         d = dict(src_dict)
 
-        notifications = [NotificationNested.from_dict(n, hive_client=hive_client) for n in d.pop("notifications", [])]
+        notifications = [
+            NotificationNested.from_dict(n, hive_client=hive_client)
+            for n in d.pop("notifications", [])
+        ]
 
         student_assignment_status = (
             AssignmentStatusEnum(d["student_assignment_status"])
-            if "student_assignment_status" in d and not isinstance(d["student_assignment_status"], Unset)
+            if "student_assignment_status" in d
+            and not isinstance(d["student_assignment_status"], Unset)
             else UNSET
         )
 

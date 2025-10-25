@@ -1,3 +1,5 @@
+"""Hive management course user type."""
+
 import datetime
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Self, TypeVar, cast
@@ -22,7 +24,9 @@ T = TypeVar("T", bound="User")
 
 
 @_attrs_define
-class User(HiveCoreItem):
+class User(
+    HiveCoreItem
+):  # pylint: disable=too-many-instance-attributes
     """Hive management course user.
 
     Attributes:
@@ -108,7 +112,11 @@ class User(HiveCoreItem):
     teacher: Unset | bool = UNSET
     hostname: Unset | str = UNSET
 
-    def to_dict(self) -> dict[str, Any]:
+    def to_dict(
+        self,
+    ) -> dict[
+        str, Any
+    ]:  # pylint: disable=too-many-locals, too-many-statements, too-many-branches
         id = self.id
 
         display_name = self.display_name
@@ -157,12 +165,18 @@ class User(HiveCoreItem):
         disable_queue = self.disable_queue
 
         user_queue_id: None | Unset | int
-        user_queue_id = UNSET if isinstance(self.user_queue_id, Unset) else self.user_queue_id
+        user_queue_id = (
+            UNSET if isinstance(self.user_queue_id, Unset) else self.user_queue_id
+        )
 
         disable_user_queue = self.disable_user_queue
 
         override_queue_id: None | Unset | int
-        override_queue_id = UNSET if isinstance(self.override_queue_id, Unset) else self.override_queue_id
+        override_queue_id = (
+            UNSET
+            if isinstance(self.override_queue_id, Unset)
+            else self.override_queue_id
+        )
 
         confirmed = self.confirmed
 
@@ -238,7 +252,9 @@ class User(HiveCoreItem):
 
         current_assignment = _parse_current_assignment(d.pop("current_assignment"))
 
-        current_assignment_options = cast("list[int]", d.pop("current_assignment_options"))
+        current_assignment_options = cast(
+            "list[int]", d.pop("current_assignment_options")
+        )
 
         mentees = cast("list[int]", d.pop("mentees"))
 

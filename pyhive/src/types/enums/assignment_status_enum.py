@@ -1,7 +1,11 @@
+"""Enumeration for assignment statuses (auto-generated)."""
+
 from enum import Enum
 
 
 class AssignmentStatusEnum(str, Enum):
+    """The status of an assignment."""
+
     AUTOCHECKED = "AutoChecked"
     DONE = "Done"
     NEW = "New"

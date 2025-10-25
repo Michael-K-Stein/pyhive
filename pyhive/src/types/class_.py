@@ -1,4 +1,7 @@
-"""Defines the Class type representing a school class/group in a program, including serialization and lazy-loading of related objects."""
+"""
+Defines the Class type representing a school class/group in a program,
+including serialization and lazy-loading of related objects.
+"""
 
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Self, TypeVar, cast
@@ -96,7 +99,11 @@ class Class(HiveCoreItem):
             user_ids=cast("list[int]", d["users"]),
             program_name=d["program__name"],
             email=d.get("email", UNSET),
-            type_=(UNSET if isinstance((type_val := d.get("type", UNSET)), Unset) else ClassTypeEnum(type_val)),
+            type_=(
+                UNSET
+                if isinstance((type_val := d.get("type", UNSET)), Unset)
+                else ClassTypeEnum(type_val)
+            ),
             description=cast("None | Unset | str", d.get("description", UNSET)),
         )
 

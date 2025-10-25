@@ -1,9 +1,17 @@
+"""Queue model for the Hive API (auto-generated).
+
+This module contains the :class:`Queue` dataclass which represents a
+queue entry returned by the Hive API. The class provides simple
+serialization helpers and lazily-resolved relationship properties.
+"""
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Self, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field
 from src.types.common import UNSET, Unset
+from src.types.core_item import HiveCoreItem
 
 if TYPE_CHECKING:
     from client import HiveClient
@@ -16,8 +24,13 @@ T = TypeVar("T", bound="Queue")
 
 
 @_attrs_define
-class Queue:
-    """Queue model representing a student/program/module queue entry."""
+class Queue(HiveCoreItem):
+    """Queue model representing a student/program/module queue entry.
+
+    Attributes mirror the API JSON keys; relationship properties (``user``,
+    ``module``, ``subject``, ``program``) lazily load the referenced
+    objects using the supplied ``hive_client``.
+    """
 
     hive_client: "HiveClient"
     id: int
@@ -42,6 +55,11 @@ class Queue:
     _program: "Program | None" = field(init=False, default=None)
 
     def to_dict(self) -> dict[str, Any]:
+        """Return a JSON-serializable dictionary of this Queue.
+
+        The returned mapping only includes optional keys when they are not
+        :data:`UNSET`.
+        """
         return {
             "id": self.id,
             "name": self.name,
@@ -56,13 +74,26 @@ class Queue:
             "module_order": self.module_order,
             "program_id": self.program_id,
             "program_name": self.program_name,
-            **({"description": self.description} if self.description is not UNSET else {}),
+            **(
+                {"description": self.description}
+                if self.description is not UNSET
+                else {}
+            ),
             **({"module": self.module} if self.module is not UNSET else {}),
             **({"user": self.user} if self.user_id is not UNSET else {}),
         }
 
     @classmethod
     def from_dict(cls, src_dict: Mapping[str, Any], hive_client: "HiveClient") -> Self:
+        """Create a :class:`Queue` instance from a mapping (typically parsed JSON).
+
+        Args:
+            src_dict: Mapping with keys matching the API response.
+            hive_client: Hive client used to lazily resolve relationships.
+
+        Returns:
+            A populated :class:`Queue` instance.
+        """
         d = dict(src_dict)
 
         def _optional(data: object) -> Any:
@@ -88,22 +119,32 @@ class Queue:
 
     @property
     def user(self) -> "User | None":
+        """Lazily return the :class:`User` associated with this queue entry.
+
+        Returns None when no user_id is set.
+        """
         if self._user is None and isinstance(self.user_id, int):
             self._user = self.hive_client.get_user(self.user_id)
         return self._user
 
     @property
     def module(self) -> "Module | None":
+        """Lazily return the :class:`Module` referenced by this queue entry.
+
+        Returns None when no module_id is present.
+        """
         if self._module is None and isinstance(self.module_id, int):
             self._module = self.hive_client.get_module(self.module_id)
         return self._module
 
     @property
     def subject(self) -> "Subject | None":
+        """Return the resolved :class:`Subject` or None if not available."""
         if isinstance(self.subject_id, int):
             return self.hive_client.get_subject(self.subject_id)
         return None
 
     @property
     def program(self) -> "Program":
+        """Return the resolved :class:`Program` for this queue entry."""
         return self.hive_client.get_program(self.program_id)

@@ -1,7 +1,11 @@
+"""Enumeration for PATBAS settings (auto-generated)."""
+
 from enum import Enum
 
 
 class PatbasEnum(str, Enum):
+    """PATBAS settings."""
+
     ALWAYS = "Always"
     NEVER = "Never"
     ON_DONE = "On Done"
