@@ -41,8 +41,19 @@ jobs:
       - name: Build sdist and wheel
         run: python -m build --sdist --wheel
 
+      - name: Extract package metadata
+        id: meta
+        run: |
+          python - <<'PY'
+          import tomllib, os
+          data = tomllib.loads(open('pyproject.toml','rb').read())
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
+              fh.write(f"name={data['project']['name']}\n")
+              fh.write(f"version={data['project']['version']}\n")
+          PY
+
       - name: Upload built artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: pyhive-dist
+          name: ${{ steps.meta.outputs.name }}-${{ steps.meta.outputs.version }}
           path: dist/*
