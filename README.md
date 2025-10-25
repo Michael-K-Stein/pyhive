@@ -1,90 +1,83 @@
-# pyhive — a stupid-simple Hive API client
 
-pyhive is a tiny, intentionally "stupid simple" Python client for the Hive API. Its goal is to provide a minimal, predictable, and dependency-light way to do the common Hive operations you actually need — no magic, no heavy abstractions, just small typed models and straightforward methods built on top of httpx.
+# pyhive — a stupid simple Hive Python API
 
-Key principles
-- Stupid simple: small surface area and obvious behaviour.
-- Minimal dependencies: built on httpx and standard typing.
-- Keep it practical: convenience helpers for common endpoints, but no sweeping frameworks.
+Lightweight, no-fuss Python client for the Hive service used in this repo. It exposes a small, synchronous HTTP client (as a context manager) and typed model objects for common Hive resources like programs, subjects, modules, exercises and users.
 
-Compatibility
-- Python 3.11+
+## Highlights
+- Minimal, dependency-light wrapper around the Hive API
+- Generator-based list endpoints for memory-efficient iteration
+- Typed model objects under `src.types` for convenience
 
-Installation
+## Install
+This project uses plain Python. From the repository root you can install the development requirements or install the package locally.
 
-Install the published distribution from PyPI:
+1) Create and activate a virtualenv (recommended)
 
-```bash
-pip install pyhive
+Windows (PowerShell):
+
+```pwsh
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
 ```
 
-Quick start
+2) Install dependencies
+
+```pwsh
+pip install -r requirements.txt
+# or install the package in editable mode
+pip install -e .
+```
+
+## Quickstart
+The main client class is `HiveClient` in `pyhive.client`. It is used as a context manager to ensure proper session/login handling.
+
+Example — list programs and print their ids and names:
 
 ```python
 from pyhive.client import HiveClient
 
-hive_url = "https://your-hive.example"
+USERNAME = "yourusername"
+PASSWORD = "yourpassword"
+HIVE_URL = "https://hive.example.com"
 
-with HiveClient("username", "password", hive_url) as client:
-	# List programs
+with HiveClient(USERNAME, PASSWORD, HIVE_URL) as client:
 	for program in client.get_course_programs():
-		print(program)
-
-	# Get a specific class
-	cls = client.get_class(123)
-	print(cls)
-
-	# List exercises for a module
-	for ex in client.get_exercises(parent_module__id=456):
-		print(ex)
-
-	# Use other helpers (get_subject, get_module, get_users, etc.)
-
+		print(program.id, program.name)
 ```
 
-What you get
-- A single client class `HiveClient` that handles authentication and HTTP calls.
-- Typed simple models (Program, Subject, Module, Exercise, Class, User, FormField, ...) with `.from_dict()` helpers used by the client.
-- Generator-based list methods so you can iterate without loading everything into memory immediately.
+Example — fetch a program by id:
 
-When to use this library
-- When you need a straightforward scriptable interface to Hive for small automation tasks, tooling, or glue code.
-- When you want something small and easy to understand rather than a big ORM-like SDK.
-
-Notes and caveats
-- This project is intentionally minimal. It is not a full-featured SDK that shields you from all API behaviour — it exposes simple typed objects and helpers.
-- The package layout in this repository currently provides the module as `hiveapi` while the distribution name is `pyhive`. If you prefer `pyhive` as the import name, we can add a small shim package or rename the package, but that is a separate change.
-- The library uses httpx under the hood; you can pass httpx-aware options (like `verify=False`) to the `HiveClient` constructor where supported.
-
-Contributing
-
-Contributions are welcome. Keep changes focused and low-risk. If you add features consider:
-
-- Keeping the API surface small and explicit.
-- Adding tests for new behaviors.
-- Updating type hints.
-
-Development
-
-To build a wheel locally:
-
-```bash
-python -m build -w
+```python
+with HiveClient(USERNAME, PASSWORD, HIVE_URL) as client:
+	program = client.get_program(42)
+	print(program.name, program.description)
 ```
 
-To run tests (install dev dependencies first):
+Notes on generators: list-style endpoints (e.g. `get_course_programs`, `get_exercises`, `get_users`, `get_classes`) return generators of typed model objects — iterate over them or convert to a list if you need random access.
 
-```bash
-pip install -e .[dev]
+## API contract (short)
+- Initialization: `HiveClient(username: str, password: str, hive_url: str, **kwargs)`
+- Common methods return either a single typed object (e.g. `get_program(id)`) or a generator of objects (e.g. `get_course_programs()`)
+- Model classes provide `.from_dict(...)` constructors and are found under `src.types`.
+
+Error handling: HTTP-level errors raised by the underlying request logic will surface; catch exceptions around client calls as needed.
+
+## Tests
+Run the unit tests with pytest from the repository root:
+
+```pwsh
+pip install -r requirements.txt
 pytest -q
 ```
 
-License
+## Contributing
+- Open an issue or PR for changes
+- Keep changes focused and small; prefer adding tests for new behavior
 
-MIT — see the LICENSE file for details.
+## Files of interest
+- `pyhive/client.py` — the high-level client class you will use
+- `src/types/` — typed model objects created from API responses
+- `tests/` — unit tests and examples of client usage
 
-Contact
-
-Maintainer: Michael K. Steinberg <m.kuper.steinberg@gmail.com>
-
-Enjoy — keep it simple. ❤️
+## License
+This repository does not include a formal license file. Add a LICENSE if you plan to publish or share this package.
