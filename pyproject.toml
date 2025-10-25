@@ -1,5 +1,5 @@
 [project]
-name = "hiveapi"
+name = "pyhive"
 version = "5.12.0"
 description = "Python bindings for Hive"
 authors = [{ name = "Michael K. Steinberg", email = "m.kuper.steinberg@gmail.com"}]
@@ -20,6 +20,9 @@ dev = [
 [build-system]
 requires = ["hatchling >= 1.26"]
 build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["hiveapi"]
 
 [tool.mypy]
 plugins = []
