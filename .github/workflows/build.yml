@@ -38,22 +38,12 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install build
 
-      - name: Build sdist and wheel
-        run: python -m build --sdist --wheel
-
-      - name: Extract package metadata
-        id: meta
-        run: |
-          python - <<'PY'
-          import tomllib, os
-          data = tomllib.loads(open('pyproject.toml','rb').read())
-          with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
-              fh.write(f"name={data['project']['name']}\n")
-              fh.write(f"version={data['project']['version']}\n")
-          PY
+      - name: Build wheel (fast)
+        # build with -w to produce wheel; the wheel filename contains the package name and version
+        run: python -m build -w
 
       - name: Upload built artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ steps.meta.outputs.name }}-${{ steps.meta.outputs.version }}
+          name: dist
           path: dist/*
