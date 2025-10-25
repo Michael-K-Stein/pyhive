@@ -1,5 +1,5 @@
 [project]
-name = "pyhive"
+name = "PyHiveLMS"
 version = "5.12.0"
 description = "Python bindings for Hive"
 authors = [
@@ -7,6 +7,7 @@ authors = [
 ]
 requires-python = ">=3.11.0"
 dependencies = ["httpx"]
+readme = { file = "README.md", content-type = "text/markdown" }
 
 [dependency-groups]
 dev = ["pre-commit>=4.2.0", "pytest-cov>=6.2.1", "pytest>=7.4.0"]
