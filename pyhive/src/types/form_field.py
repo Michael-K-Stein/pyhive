@@ -72,9 +72,21 @@ class FormField(HiveCoreItem):
             "hanich_responses": self.hanich_responses,
             "has_value": self.has_value,
             "segel_only": self.segel_only,
-            **({"description": self.description} if self.description is not UNSET else {}),
-            **({"lower_limit": self.lower_limit} if self.lower_limit is not UNSET else {}),
-            **({"upper_limit": self.upper_limit} if self.upper_limit is not UNSET else {}),
+            **(
+                {"description": self.description}
+                if self.description is not UNSET
+                else {}
+            ),
+            **(
+                {"lower_limit": self.lower_limit}
+                if self.lower_limit is not UNSET
+                else {}
+            ),
+            **(
+                {"upper_limit": self.upper_limit}
+                if self.upper_limit is not UNSET
+                else {}
+            ),
             **({"choices": self.choices} if self.choices is not UNSET else {}),
             **({"metadata": self.metadata} if self.metadata is not UNSET else {}),
             **({"groups": self.group_ids} if self.group_ids is not UNSET else {}),
@@ -117,10 +129,13 @@ class FormField(HiveCoreItem):
 
     @property
     def groups(self) -> list["Class"]:
+        """Return the list of Classes which this field is relevant to."""
         if isinstance(self.group_ids, Unset):
             return []
         if self._groups is None:
-            self._groups = [self.hive_client.get_class(group_id) for group_id in self.group_ids]
+            self._groups = [
+                self.hive_client.get_class(group_id) for group_id in self.group_ids
+            ]
         return self._groups
 
     def __eq__(self, value: object) -> bool:

@@ -59,9 +59,9 @@ class QueueItem(HiveCoreItem):
 
     @classmethod
     def from_dict(cls, src_dict: Mapping[str, Any], hive_client: "HiveClient") -> Self:
-        from src.types.exercise import (
+        from src.types.exercise import (  # pylint: disable=import-outside-toplevel
             Exercise,
-        )  # pylint: disable=import-outside-toplevel
+        )
         from src.types.queue import Queue  # pylint: disable=import-outside-toplevel
 
         d = dict(src_dict)
