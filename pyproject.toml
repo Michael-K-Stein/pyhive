@@ -1,0 +1,83 @@
+[project]
+name = "hiveapi"
+version = "5.12.0"
+description = "Python bindings for Hive"
+authors = [{ name = "Hive Dev Team" }]
+requires-python = ">=3.11.0"
+dependencies = [
+    "bump-my-version>=1.2.0",
+    "debugpy>=1.8.14",
+    "mypy>=1.16.1",
+    "pre-commit>=4.2.0",
+    "pytest-cov>=6.2.1",
+    "toml>=0.10.2",
+    "httpx",
+]
+
+[dependency-groups]
+dev = [
+    "bump-my-version>=1.2.0",
+    "debugpy>=1.8.14",
+    "mypy>=1.16.1",
+    "pre-commit>=4.2.0",
+    "pytest-cov>=6.2.1",
+]
+
+[tool.bumpversion]
+current_version = "5.12.0"
+commit = true
+tag = true
+tag_name = "v{new_version}"
+
+[[tool.bumpversion.files]]
+filename = "../CHANGELOG.md"
+search = "## Unreleased"
+replace = "## Unreleased\n\n## {new_version}"
+
+[tool.ruff]
+line-length = 120
+target-version = "py313"
+extend-exclude = []
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["D", "S101", "ARG", "SIM117","F841","PLR2004"]
+
+[tool.ruff.lint]
+select = ["ALL"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.mypy]
+plugins = []
+mypy_path = "$MYPY_CONFIG_FILE_DIR,$MYPY_CONFIG_FILE_DIR/stubs"
+
+# Ensure full coverage
+disallow_untyped_calls = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+disallow_untyped_decorators = true
+check_untyped_defs = true
+
+# Restrict dynamic typing
+disallow_any_generics = true
+disallow_subclassing_any = true
+warn_return_any = true
+
+# Know exactly what you're doing
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_unused_configs = true
+warn_unreachable = true
+show_error_codes = true
+
+# Explicit is better than implicit
+no_implicit_optional = true
+
+# Prevent modules from being skipped
+ignore_missing_imports = false
+disallow_any_unimported = true
+
+# Don't check tests
+exclude = "([a-zA-Z]*/(tests)/(.)*)|.venv"

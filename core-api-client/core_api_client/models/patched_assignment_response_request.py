@@ -1,0 +1,202 @@
+import json
+from collections.abc import Mapping
+from io import BytesIO
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+
+from attrs import define as _attrs_define
+from attrs import field as _attrs_field
+
+from .. import types
+from ..models.assignment_response_type_enum import AssignmentResponseTypeEnum
+from ..types import UNSET, File, FileTypes, Unset
+
+if TYPE_CHECKING:
+    from ..models.assignment_response_content_request import AssignmentResponseContentRequest
+
+
+T = TypeVar("T", bound="PatchedAssignmentResponseRequest")
+
+
+@_attrs_define
+class PatchedAssignmentResponseRequest:
+    """
+    Attributes:
+        contents (Union[Unset, list['AssignmentResponseContentRequest']]):
+        file_name (Union[Unset, str]):
+        file (Union[File, None, Unset]):
+        dear_student (Union[Unset, bool]):  Default: True.
+        hide_checker_name (Union[Unset, bool]):
+        segel_only (Union[Unset, bool]):
+        response_type (Union[Unset, AssignmentResponseTypeEnum]): * `Comment` - Comment
+            * `Work In Progress` - Workinprogress
+            * `Submission` - Submission
+            * `AutoCheck` - Autocheck
+            * `Redo` - Redo
+            * `Done` - Done
+    """
+
+    contents: Union[Unset, list["AssignmentResponseContentRequest"]] = UNSET
+    file_name: Union[Unset, str] = UNSET
+    file: Union[File, None, Unset] = UNSET
+    dear_student: Union[Unset, bool] = True
+    hide_checker_name: Union[Unset, bool] = UNSET
+    segel_only: Union[Unset, bool] = UNSET
+    response_type: Union[Unset, AssignmentResponseTypeEnum] = UNSET
+    additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
+
+    def to_dict(self) -> dict[str, Any]:
+        contents: Union[Unset, list[dict[str, Any]]] = UNSET
+        if not isinstance(self.contents, Unset):
+            contents = []
+            for contents_item_data in self.contents:
+                contents_item = contents_item_data.to_dict()
+                contents.append(contents_item)
+
+        file_name = self.file_name
+
+        file: Union[FileTypes, None, Unset]
+        if isinstance(self.file, Unset):
+            file = UNSET
+        elif isinstance(self.file, File):
+            file = self.file.to_tuple()
+
+        else:
+            file = self.file
+
+        dear_student = self.dear_student
+
+        hide_checker_name = self.hide_checker_name
+
+        segel_only = self.segel_only
+
+        response_type: Union[Unset, str] = UNSET
+        if not isinstance(self.response_type, Unset):
+            response_type = self.response_type.value
+
+        field_dict: dict[str, Any] = {}
+        field_dict.update(self.additional_properties)
+        field_dict.update({})
+        if contents is not UNSET:
+            field_dict["contents"] = contents
+        if file_name is not UNSET:
+            field_dict["file_name"] = file_name
+        if file is not UNSET:
+            field_dict["file"] = file
+        if dear_student is not UNSET:
+            field_dict["dear_student"] = dear_student
+        if hide_checker_name is not UNSET:
+            field_dict["hide_checker_name"] = hide_checker_name
+        if segel_only is not UNSET:
+            field_dict["segel_only"] = segel_only
+        if response_type is not UNSET:
+            field_dict["response_type"] = response_type
+
+        return field_dict
+
+    def to_multipart(self) -> types.RequestFiles:
+        files: types.RequestFiles = []
+
+        if not isinstance(self.contents, Unset):
+            for contents_item_element in self.contents:
+                files.append(
+                    ("contents", (None, json.dumps(contents_item_element.to_dict()).encode(), "application/json"))
+                )
+
+        if not isinstance(self.file_name, Unset):
+            files.append(("file_name", (None, str(self.file_name).encode(), "text/plain")))
+
+        if not isinstance(self.file, Unset):
+            if isinstance(self.file, File):
+                files.append(("file", self.file.to_tuple()))
+            else:
+                files.append(("file", (None, str(self.file).encode(), "text/plain")))
+
+        if not isinstance(self.dear_student, Unset):
+            files.append(("dear_student", (None, str(self.dear_student).encode(), "text/plain")))
+
+        if not isinstance(self.hide_checker_name, Unset):
+            files.append(("hide_checker_name", (None, str(self.hide_checker_name).encode(), "text/plain")))
+
+        if not isinstance(self.segel_only, Unset):
+            files.append(("segel_only", (None, str(self.segel_only).encode(), "text/plain")))
+
+        if not isinstance(self.response_type, Unset):
+            files.append(("response_type", (None, str(self.response_type.value).encode(), "text/plain")))
+
+        for prop_name, prop in self.additional_properties.items():
+            files.append((prop_name, (None, str(prop).encode(), "text/plain")))
+
+        return files
+
+    @classmethod
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.assignment_response_content_request import AssignmentResponseContentRequest
+
+        d = dict(src_dict)
+        contents = []
+        _contents = d.pop("contents", UNSET)
+        for contents_item_data in _contents or []:
+            contents_item = AssignmentResponseContentRequest.from_dict(contents_item_data)
+
+            contents.append(contents_item)
+
+        file_name = d.pop("file_name", UNSET)
+
+        def _parse_file(data: object) -> Union[File, None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, bytes):
+                    raise TypeError()
+                file_type_0 = File(payload=BytesIO(data))
+
+                return file_type_0
+            except:  # noqa: E722
+                pass
+            return cast(Union[File, None, Unset], data)
+
+        file = _parse_file(d.pop("file", UNSET))
+
+        dear_student = d.pop("dear_student", UNSET)
+
+        hide_checker_name = d.pop("hide_checker_name", UNSET)
+
+        segel_only = d.pop("segel_only", UNSET)
+
+        _response_type = d.pop("response_type", UNSET)
+        response_type: Union[Unset, AssignmentResponseTypeEnum]
+        if isinstance(_response_type, Unset):
+            response_type = UNSET
+        else:
+            response_type = AssignmentResponseTypeEnum(_response_type)
+
+        patched_assignment_response_request = cls(
+            contents=contents,
+            file_name=file_name,
+            file=file,
+            dear_student=dear_student,
+            hide_checker_name=hide_checker_name,
+            segel_only=segel_only,
+            response_type=response_type,
+        )
+
+        patched_assignment_response_request.additional_properties = d
+        return patched_assignment_response_request
+
+    @property
+    def additional_keys(self) -> list[str]:
+        return list(self.additional_properties.keys())
+
+    def __getitem__(self, key: str) -> Any:
+        return self.additional_properties[key]
+
+    def __setitem__(self, key: str, value: Any) -> None:
+        self.additional_properties[key] = value
+
+    def __delitem__(self, key: str) -> None:
+        del self.additional_properties[key]
+
+    def __contains__(self, key: str) -> bool:
+        return key in self.additional_properties

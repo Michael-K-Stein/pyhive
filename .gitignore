@@ -1,0 +1,5 @@
+
+__auto-generated/
+dist/
+__pycache__/
+hiveapi/demo.py

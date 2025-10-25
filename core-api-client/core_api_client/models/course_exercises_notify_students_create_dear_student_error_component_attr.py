@@ -1,0 +1,8 @@
+from enum import Enum
+
+
+class CourseExercisesNotifyStudentsCreateDearStudentErrorComponentAttr(str, Enum):
+    DEAR_STUDENT = "dear_student"
+
+    def __str__(self) -> str:
+        return str(self.value)
