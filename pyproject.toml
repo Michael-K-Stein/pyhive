@@ -2,7 +2,7 @@
 name = "hiveapi"
 version = "5.12.0"
 description = "Python bindings for Hive"
-authors = [{ name = "Michael K. Steinberg" }]
+authors = [{ name = "Michael K. Steinberg", email = "m.kuper.steinberg@gmail.com"}]
 requires-python = ">=3.11.0"
 dependencies = [
     "bump-my-version>=1.2.0",
@@ -46,7 +46,7 @@ extend-exclude = []
 select = ["ALL"]
 
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling >= 1.26"]
 build-backend = "hatchling.build"
 
 [tool.mypy]

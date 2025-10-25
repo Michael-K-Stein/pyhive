@@ -3,7 +3,6 @@ from types import TracebackType
 from typing import TYPE_CHECKING, Any, TypeVar
 
 import httpx
-
 from src.authenticated_hive_client import (
     _AuthenticatedHiveClient,  # pyright: ignore[reportPrivateUsage]
 )
@@ -231,4 +230,7 @@ class HiveClient(_AuthenticatedHiveClient):
             if value is not None:
                 query_params = query_params.set(name, value)
 
-        return (item_type.from_dict(x, hive_client=self) for x in super().get(endpoint, params=query_params))
+        return (
+            item_type.from_dict(x, hive_client=self)
+            for x in super().get(endpoint, params=query_params)
+        )
