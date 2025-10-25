@@ -9,8 +9,8 @@ from src.types.enums.help_type_enum import HelpTypeEnum
 from src.types.enums.visibility_enum import VisibilityEnum
 
 if TYPE_CHECKING:
-    from api.bindings.python.hiveapi.client import HiveClient
-    from api.bindings.python.hiveapi.src.types.user import User
+    from client import HiveClient
+    from src.types.user import User
     from src.types.exercise import Exercise
     from src.types.help_response_segel_nested import HelpResponseSegelNested
     from src.types.notification_nested import NotificationNested

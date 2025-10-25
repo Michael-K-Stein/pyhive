@@ -20,5 +20,5 @@ jobs:
         pip install pylint
     - name: Analysing the code with pylint
       run: |
-        cd hiveapi
+        cd pyhive
         pylint $(git ls-files '*.py')
