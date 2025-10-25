@@ -1,0 +1,224 @@
+from collections.abc import Mapping
+from typing import TYPE_CHECKING, Any, Self, TypeVar, Union, cast
+
+from attr import field
+from attrs import define as _attrs_define
+from src.types.common import UNSET, Unset
+from src.types.enums.help_status_enum import HelpStatusEnum
+from src.types.enums.help_type_enum import HelpTypeEnum
+from src.types.enums.visibility_enum import VisibilityEnum
+
+if TYPE_CHECKING:
+    from api.bindings.python.hiveapi.client import HiveClient
+    from api.bindings.python.hiveapi.src.types.user import User
+    from src.types.exercise import Exercise
+    from src.types.help_response_segel_nested import HelpResponseSegelNested
+    from src.types.notification_nested import NotificationNested
+
+
+T = TypeVar("T", bound="Help")
+
+
+@_attrs_define
+class Help:
+    """A student's help request.
+
+    Attributes:
+    id (int):
+    user (int):
+    checker (Union[None, int]):
+    checker_first_name (str):
+    checker_last_name (str):
+    is_subscribed (bool):
+    help_type (HelpTypeEnum):
+        * `Exercise` - Exercise
+        * `Medical` - Medical
+        * `Error` - Error
+        * `Music` - Music
+        * `Request` - Request
+        * `Other` - Other
+        * `Chat` - Chat
+    help_status (HelpStatusEnum):
+        * `Resolved` - Resolved
+        * `Open` - Open
+    for_exercise (Union['Exercise', None]):
+    responses (list['HelpResponseSegelNested']):
+    notifications (list['NotificationNested']):
+    title (Union[Unset, str]):
+    visibility (Union[Unset, VisibilityEnum]):
+        * `All Staff` - Allstaff
+        * `All Staff And Checkers` - Allstaffandcheckers
+        * `Author Only` - Authoronly
+
+    """
+
+    hive_client: "HiveClient"
+    id: int
+    user_id: int
+    _user: Union["User", None] = field(init=False, default=None)
+    checker_id: None | int
+    _checker: Union["User", None] = field(init=False, default=None)
+    checker_first_name: str
+    checker_last_name: str
+    is_subscribed: bool
+    help_type: HelpTypeEnum
+    help_status: HelpStatusEnum
+    for_exercise_id: int | None
+    _for_exercise: Union["Exercise", None] = field(init=False, default=None)
+    responses: list["HelpResponseSegelNested"]
+    notifications: list["NotificationNested"]
+    title: Unset | str = UNSET
+    visibility: Unset | VisibilityEnum = UNSET
+
+    def to_dict(self) -> dict[str, Any]:
+        from src.types.exercise import Exercise
+
+        id = self.id
+
+        user = self.user
+
+        checker_id = self.checker_id
+
+        checker_first_name = self.checker_first_name
+
+        checker_last_name = self.checker_last_name
+
+        is_subscribed = self.is_subscribed
+
+        help_type = self.help_type.value
+
+        help_status = self.help_status.value
+
+        for_exercise: None | dict[str, Any]
+        for_exercise = self.for_exercise.to_dict() if isinstance(self.for_exercise, Exercise) else self.for_exercise
+
+        responses: list[dict[str, Any]] = []
+        for responses_item_data in self.responses:
+            responses_item = responses_item_data.to_dict()
+            responses.append(responses_item)
+
+        notifications: list[dict[str, Any]] = []
+        for notifications_item_data in self.notifications:
+            notifications_item = notifications_item_data.to_dict()
+            notifications.append(notifications_item)
+
+        title = self.title
+
+        visibility: Unset | str = UNSET
+        if not isinstance(self.visibility, Unset):
+            visibility = self.visibility.value
+
+        field_dict: dict[str, Any] = {}
+        field_dict.update(
+            {
+                "id": id,
+                "user": user,
+                "checker": checker_id,
+                "checker_first_name": checker_first_name,
+                "checker_last_name": checker_last_name,
+                "is_subscribed": is_subscribed,
+                "help_type": help_type,
+                "help_status": help_status,
+                "for_exercise": for_exercise,
+                "responses": responses,
+                "notifications": notifications,
+            },
+        )
+        if title is not UNSET:
+            field_dict["title"] = title
+        if visibility is not UNSET:
+            field_dict["visibility"] = visibility
+
+        return field_dict
+
+    @classmethod
+    def from_dict(cls, src_dict: Mapping[str, Any], hive_client: "HiveClient") -> Self:
+        from src.types.help_response_segel_nested import HelpResponseSegelNested
+        from src.types.notification_nested import NotificationNested
+
+        d = dict(src_dict)
+        id = d.pop("id")
+
+        user_id = d.pop("user")
+
+        def _parse_checker(data: object) -> None | int:
+            if data is None:
+                return data
+            return cast("None | int", data)
+
+        checker_id = _parse_checker(d.pop("checker"))
+
+        checker_first_name = d.pop("checker_first_name")
+
+        checker_last_name = d.pop("checker_last_name")
+
+        is_subscribed = d.pop("is_subscribed")
+
+        help_type = HelpTypeEnum(d.pop("help_type"))
+
+        help_status = HelpStatusEnum(d.pop("help_status"))
+
+        def _parse_for_exercise(data: object) -> int | None:
+            if data is None:
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError
+                return cast("int", data["id"])
+            except:  # noqa: E722
+                pass
+
+        for_exercise_id = _parse_for_exercise(d.pop("for_exercise"))
+
+        responses = [
+            HelpResponseSegelNested.from_dict(responses_item_data, hive_client=hive_client)
+            for responses_item_data in d.pop("responses")
+        ]
+
+        notifications: list[NotificationNested] = [
+            NotificationNested.from_dict(notifications_item_data, hive_client=hive_client)
+            for notifications_item_data in d.pop("notifications")
+        ]
+
+        title = d.pop("title", UNSET)
+
+        _visibility = d.pop("visibility", UNSET)
+        visibility: Unset | VisibilityEnum
+        visibility = UNSET if isinstance(_visibility, Unset) else VisibilityEnum(_visibility)
+
+        return cls(
+            id=id,
+            user_id=user_id,
+            checker_id=checker_id,
+            checker_first_name=checker_first_name,
+            checker_last_name=checker_last_name,
+            is_subscribed=is_subscribed,
+            help_type=help_type,
+            help_status=help_status,
+            for_exercise_id=for_exercise_id,
+            responses=responses,
+            notifications=notifications,
+            title=title,
+            visibility=visibility,
+            hive_client=hive_client,
+        )
+
+    @property
+    def for_exercise(self) -> Union["Exercise", None]:
+        if self.for_exercise_id is None:
+            return None
+        if self._for_exercise is None:
+            self._for_exercise = self.hive_client.get_exercise(self.for_exercise_id)
+        return self._for_exercise
+
+    @property
+    def user(self) -> "User":
+        """User which opened this help request.
+
+        Returns:
+            User: The user instance.
+
+        """
+        if self._user is None:
+            self._user = self.hive_client.get_user(self.user_id)
+        return self._user

@@ -22,7 +22,7 @@ requires = ["hatchling >= 1.26"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["hiveapi"]
+packages = ["pyhive"]
 
 [tool.mypy]
 plugins = []
