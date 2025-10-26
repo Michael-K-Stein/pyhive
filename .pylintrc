@@ -9,5 +9,6 @@ max-attributes=30
 
 [MESSAGES CONTROL]
 allowed-redefined-builtins=id
+disable=R0801,fixme
 
 # You can add more pylint configuration here as needed.
