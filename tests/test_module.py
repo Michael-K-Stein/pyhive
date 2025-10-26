@@ -1,6 +1,6 @@
-from client import HiveClient
-from src.types.exercise import Exercise
-from src.types.module import Module
+from pyhive.client import HiveClient
+from pyhive.src.types.exercise import Exercise
+from pyhive.src.types.module import Module
 from tests.common import get_client_params
 
 

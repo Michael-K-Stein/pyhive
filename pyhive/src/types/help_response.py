@@ -11,13 +11,13 @@ from typing import TYPE_CHECKING, Any, Self, TypeVar, cast
 from attrs import define as _attrs_define
 from attrs import field
 from dateutil.parser import isoparse
-from src.types.common import UNSET, Unset
-from src.types.core_item import HiveCoreItem
-from src.types.enums.help_response_type_enum import HelpResponseTypeEnum
+from .common import UNSET, Unset
+from .core_item import HiveCoreItem
+from .enums.help_response_type_enum import HelpResponseTypeEnum
 
 if TYPE_CHECKING:
-    from client import HiveClient
-    from src.types.user import User
+    from ...client import HiveClient
+    from .user import User
 
 T = TypeVar("T", bound="HelpResponse")
 

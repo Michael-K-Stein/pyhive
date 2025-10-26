@@ -9,15 +9,15 @@ from typing import TYPE_CHECKING, Any, Self, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field
-from src.types.common import UNSET, Unset
-from src.types.core_item import HiveCoreItem
-from src.types.enums.sync_status_enum import SyncStatusEnum
-from src.types.subject import Subject
+from .common import UNSET, Unset
+from .core_item import HiveCoreItem
+from .enums.sync_status_enum import SyncStatusEnum
+from .subject import Subject
 
 if TYPE_CHECKING:
-    from client import HiveClient
-    from src.types.class_ import Class
-    from src.types.user import User
+    from ...client import HiveClient
+    from .class_ import Class
+    from .user import User
 
 T = TypeVar("T", bound="Program")
 

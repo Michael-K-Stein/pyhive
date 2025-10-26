@@ -4,16 +4,16 @@ from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Self, TypeVar, cast
 
 from attrs import define, field
-from src.types.common import UNSET, Unset
-from src.types.core_item import HiveCoreItem
-from src.types.enums.exercise_patbas_enum import PatbasEnum
-from src.types.enums.exercise_preview_types import ExercisePreviewTypes
-from src.types.enums.sync_status_enum import SyncStatusEnum
+from .common import UNSET, Unset
+from .core_item import HiveCoreItem
+from .enums.exercise_patbas_enum import PatbasEnum
+from .enums.exercise_preview_types import ExercisePreviewTypes
+from .enums.sync_status_enum import SyncStatusEnum
 
 if TYPE_CHECKING:
-    from client import HiveClient
-    from src.types.module import Module
-    from src.types.subject import Subject
+    from ...client import HiveClient
+    from .module import Module
+    from .subject import Subject
 
 T = TypeVar("T", bound="Exercise")
 

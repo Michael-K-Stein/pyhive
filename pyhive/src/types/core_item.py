@@ -4,7 +4,7 @@ from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Self
 
 if TYPE_CHECKING:
-    from client import HiveClient
+    from ...client import HiveClient
 
 
 class HiveCoreItem:

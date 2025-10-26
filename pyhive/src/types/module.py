@@ -9,13 +9,13 @@ from typing import TYPE_CHECKING, Any, Self, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field
-from src.types.enums.sync_status_enum import SyncStatusEnum
-from src.types.exercise import Exercise
-from src.types.program import HiveCoreItem
+from .enums.sync_status_enum import SyncStatusEnum
+from .exercise import Exercise
+from .program import HiveCoreItem
 
 if TYPE_CHECKING:
-    from client import HiveClient
-    from src.types.subject import Subject
+    from ...client import HiveClient
+    from .subject import Subject
 
 T = TypeVar("T", bound="Module")
 

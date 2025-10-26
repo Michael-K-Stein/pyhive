@@ -4,13 +4,13 @@ from collections.abc import Generator, Mapping
 from typing import TYPE_CHECKING, Any, Self, TypeVar, cast
 
 from attrs import define, field
-from src.types.core_item import HiveCoreItem
-from src.types.enums.sync_status_enum import SyncStatusEnum
+from .core_item import HiveCoreItem
+from .enums.sync_status_enum import SyncStatusEnum
 
 if TYPE_CHECKING:
-    from client import HiveClient
-    from src.types.module import Module
-    from src.types.program import Program
+    from ...client import HiveClient
+    from .module import Module
+    from .program import Program
 
 T = TypeVar("T", bound="Subject")
 

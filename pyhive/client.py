@@ -11,18 +11,18 @@ from typing import TYPE_CHECKING, Optional, TypeVar, Any
 
 import httpx
 
-from src.authenticated_hive_client import _AuthenticatedHiveClient
-from src.types.class_ import Class
-from src.types.enums.class_type_enum import ClassTypeEnum
-from src.types.exercise import Exercise
-from src.types.form_field import FormField
-from src.types.module import Module
-from src.types.program import Program
-from src.types.subject import Subject
-from src.types.user import User
+from .src.authenticated_hive_client import _AuthenticatedHiveClient
+from .src.types.class_ import Class
+from .src.types.enums.class_type_enum import ClassTypeEnum
+from .src.types.exercise import Exercise
+from .src.types.form_field import FormField
+from .src.types.module import Module
+from .src.types.program import Program
+from .src.types.subject import Subject
+from .src.types.user import User
 
 if TYPE_CHECKING:
-    from src.types.core_item import HiveCoreItem
+    from .src.types.core_item import HiveCoreItem
 
 CoreItemTypeT = TypeVar("CoreItemTypeT", bound="HiveCoreItem")
 

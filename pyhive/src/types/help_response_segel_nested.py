@@ -6,12 +6,12 @@ from typing import TYPE_CHECKING, Any, Self, TypeVar, cast
 
 from attrs import define as _attrs_define
 from dateutil.parser import isoparse
-from src.types.common import UNSET, Unset
-from src.types.enums.help_response_type_enum import HelpResponseTypeEnum
-from src.types.core_item import HiveCoreItem
+from .common import UNSET, Unset
+from .enums.help_response_type_enum import HelpResponseTypeEnum
+from .core_item import HiveCoreItem
 
 if TYPE_CHECKING:
-    from client import HiveClient
+    from ...client import HiveClient
 
 T = TypeVar("T", bound="HelpResponseSegelNested")
 

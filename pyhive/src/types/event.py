@@ -10,13 +10,13 @@ from typing import TYPE_CHECKING, Any, Self, TypeVar, cast
 
 from attrs import define as _attrs_define
 from dateutil.parser import isoparse
-from src.types.common import UNSET, Unset
-from src.types.core_item import HiveCoreItem
-from src.types.enums.event_type_enum import EventTypeEnum
+from .common import UNSET, Unset
+from .core_item import HiveCoreItem
+from .enums.event_type_enum import EventTypeEnum
 
 if TYPE_CHECKING:
-    from client import HiveClient
-    from src.types.event_attendees_type_0_item import EventAttendeesType0Item
+    from ...client import HiveClient
+    from .event_attendees_type_0_item import EventAttendeesType0Item
 
 T = TypeVar("T", bound="Event")
 
@@ -85,7 +85,7 @@ class Event(HiveCoreItem):
 
     @classmethod
     def from_dict(cls, src_dict: Mapping[str, Any], hive_client: "HiveClient") -> Self:
-        from src.types.event_attendees_type_0_item import EventAttendeesType0Item # pylint: disable=import-outside-toplevel
+        from .event_attendees_type_0_item import EventAttendeesType0Item  # pylint: disable=import-outside-toplevel
 
         d = dict(src_dict)
 

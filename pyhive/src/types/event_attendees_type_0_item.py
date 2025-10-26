@@ -5,11 +5,11 @@ from typing import TYPE_CHECKING, Any, Self, TypeVar
 
 from attrs import define as _attrs_define
 
-from src.types.core_item import HiveCoreItem
-from src.types.common import UNSET, Unset
+from .core_item import HiveCoreItem
+from .common import UNSET, Unset
 
 if TYPE_CHECKING:
-    from client import HiveClient
+    from ...client import HiveClient
 
 T = TypeVar("T", bound="EventAttendeesType0Item")
 

@@ -9,13 +9,13 @@ from typing import TYPE_CHECKING, Any, Self, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field
-from src.types.common import UNSET, Unset
-from src.types.core_item import HiveCoreItem
-from src.types.enums.form_field_type_enum import FormFieldTypeEnum
+from .common import UNSET, Unset
+from .core_item import HiveCoreItem
+from .enums.form_field_type_enum import FormFieldTypeEnum
 
 if TYPE_CHECKING:
-    from client import HiveClient
-    from src.types.program import Class
+    from ...client import HiveClient
+    from .program import Class
 
 T = TypeVar("T", bound="FormField")
 

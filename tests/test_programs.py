@@ -1,4 +1,4 @@
-from client import HiveClient
+from pyhive.client import HiveClient
 from tests.common import get_client_params
 
 

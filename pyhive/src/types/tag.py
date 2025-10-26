@@ -4,10 +4,10 @@ from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Self, TypeVar
 
 from attrs import define as _attrs_define
-from src.types.core_item import HiveCoreItem
+from .core_item import HiveCoreItem
 
 if TYPE_CHECKING:
-    from client import HiveClient
+    from ...client import HiveClient
 
 T = TypeVar("T", bound="Tag")
 

@@ -6,15 +6,15 @@ from typing import TYPE_CHECKING, Any, Self, TypeVar, cast
 
 from attrs import define, field
 from dateutil.parser import isoparse
-from src.types.common import UNSET, Unset
-from src.types.core_item import HiveCoreItem
-from src.types.enums.assignment_status_enum import AssignmentStatusEnum
-from src.types.notification_nested import NotificationNested
+from .common import UNSET, Unset
+from .core_item import HiveCoreItem
+from .enums.assignment_status_enum import AssignmentStatusEnum
+from .notification_nested import NotificationNested
 
 if TYPE_CHECKING:
-    from client import HiveClient
-    from src.types.exercise import Exercise
-    from src.types.user import User
+    from ...client import HiveClient
+    from .exercise import Exercise
+    from .user import User
 
 T = TypeVar("T", bound="Assignment")
 

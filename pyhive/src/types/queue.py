@@ -10,15 +10,15 @@ from typing import TYPE_CHECKING, Any, Self, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field
-from src.types.common import UNSET, Unset
-from src.types.core_item import HiveCoreItem
+from .common import UNSET, Unset
+from .core_item import HiveCoreItem
 
 if TYPE_CHECKING:
-    from client import HiveClient
-    from src.types.module import Module
-    from src.types.program import Program
-    from src.types.subject import Subject
-    from src.types.user import User
+    from ...client import HiveClient
+    from .module import Module
+    from .program import Program
+    from .subject import Subject
+    from .user import User
 
 T = TypeVar("T", bound="Queue")
 

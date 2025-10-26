@@ -1,6 +1,6 @@
 import httpx
-from client import HiveClient
-from src.types.class_ import Class
+from pyhive.client import HiveClient
+from pyhive.src.types.class_ import Class
 from tests.common import get_client_params
 
 

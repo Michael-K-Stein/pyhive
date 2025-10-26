@@ -9,18 +9,18 @@ from typing import TYPE_CHECKING, Any, Self, TypeVar, Union, cast
 
 from attr import field
 from attrs import define as _attrs_define
-from src.types.common import UNSET, Unset
-from src.types.enums.help_status_enum import HelpStatusEnum
-from src.types.enums.help_type_enum import HelpTypeEnum
-from src.types.enums.visibility_enum import VisibilityEnum
-from src.types.core_item import HiveCoreItem
+from .common import UNSET, Unset
+from .enums.help_status_enum import HelpStatusEnum
+from .enums.help_type_enum import HelpTypeEnum
+from .enums.visibility_enum import VisibilityEnum
+from .core_item import HiveCoreItem
 
 if TYPE_CHECKING:
-    from client import HiveClient
-    from src.types.user import User
-    from src.types.exercise import Exercise
-    from src.types.help_response_segel_nested import HelpResponseSegelNested
-    from src.types.notification_nested import NotificationNested
+    from ...client import HiveClient
+    from .user import User
+    from .exercise import Exercise
+    from .help_response_segel_nested import HelpResponseSegelNested
+    from .notification_nested import NotificationNested
 
 
 T = TypeVar("T", bound="Help")
@@ -86,7 +86,7 @@ class Help(HiveCoreItem):
 
         # Import locally to avoid circular imports at module import time.
         # Keep the import local but silence pylint's import-outside-toplevel.
-        from src.types.exercise import (  # pylint: disable=import-outside-toplevel
+        from .exercise import (  # pylint: disable=import-outside-toplevel
             Exercise,
         )
 
@@ -168,10 +168,10 @@ class Help(HiveCoreItem):
         """
 
         # Local imports to avoid runtime import cycles; keep but silence pylint.
-        from src.types.help_response_segel_nested import (  # pylint: disable=import-outside-toplevel
+        from .help_response_segel_nested import (  # pylint: disable=import-outside-toplevel
             HelpResponseSegelNested,
         )
-        from src.types.notification_nested import (  # pylint: disable=import-outside-toplevel
+        from .notification_nested import (  # pylint: disable=import-outside-toplevel
             NotificationNested,
         )
 

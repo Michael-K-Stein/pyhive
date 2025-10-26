@@ -7,18 +7,18 @@ from typing import TYPE_CHECKING, Any, Self, TypeVar, cast
 from attrs import define as _attrs_define
 from attrs import field
 from dateutil.parser import isoparse
-from src.types.common import UNSET, Unset
-from src.types.core_item import HiveCoreItem
-from src.types.enums.clearance_enum import ClearanceEnum
-from src.types.enums.gender_enum import GenderEnum
-from src.types.enums.status_enum import StatusEnum
+from .common import UNSET, Unset
+from .core_item import HiveCoreItem
+from .enums.clearance_enum import ClearanceEnum
+from .enums.gender_enum import GenderEnum
+from .enums.status_enum import StatusEnum
 
 if TYPE_CHECKING:
-    from client import HiveClient
-    from src.types.assignment import Assignment
-    from src.types.class_ import Class
-    from src.types.program import Program
-    from src.types.queue import Queue
+    from ...client import HiveClient
+    from .assignment import Assignment
+    from .class_ import Class
+    from .program import Program
+    from .queue import Queue
 
 T = TypeVar("T", bound="User")
 

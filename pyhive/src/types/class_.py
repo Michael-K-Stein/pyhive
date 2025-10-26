@@ -7,14 +7,14 @@ from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Self, TypeVar, cast
 
 from attrs import define, field
-from src.types.common import UNSET, Unset
-from src.types.core_item import HiveCoreItem
-from src.types.enums.class_type_enum import ClassTypeEnum
+from .common import UNSET, Unset
+from .core_item import HiveCoreItem
+from .enums.class_type_enum import ClassTypeEnum
 
 if TYPE_CHECKING:
-    from client import HiveClient
-    from src.types.program import Program
-    from src.types.user import User
+    from ...client import HiveClient
+    from .program import Program
+    from .user import User
 
 T = TypeVar("T", bound="Class")
 

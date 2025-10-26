@@ -4,14 +4,14 @@ from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Self, TypeVar, Union
 
 from attrs import define as _attrs_define
-from src.types.common import UNSET, Unset
-from src.types.enums.queue_rule_enum import QueueRuleEnum
-from src.types.core_item import HiveCoreItem
+from .common import UNSET, Unset
+from .enums.queue_rule_enum import QueueRuleEnum
+from .core_item import HiveCoreItem
 
 if TYPE_CHECKING:
-    from client import HiveClient
-    from src.types.exercise import Exercise
-    from src.types.queue import Queue
+    from ...client import HiveClient
+    from .exercise import Exercise
+    from .queue import Queue
 
 T = TypeVar("T", bound="QueueItem")
 
@@ -30,10 +30,10 @@ class QueueItem(HiveCoreItem):
     continue_on_redo: Unset | bool = UNSET
 
     def to_dict(self) -> dict[str, Any]:
-        from src.types.exercise import (  # pylint: disable=import-outside-toplevel
+        from .exercise import (  # pylint: disable=import-outside-toplevel
             Exercise,
         )
-        from src.types.queue import Queue  # pylint: disable=import-outside-toplevel
+        from .queue import Queue  # pylint: disable=import-outside-toplevel
 
         return {
             "id": self.id,
@@ -59,10 +59,10 @@ class QueueItem(HiveCoreItem):
 
     @classmethod
     def from_dict(cls, src_dict: Mapping[str, Any], hive_client: "HiveClient") -> Self:
-        from src.types.exercise import (  # pylint: disable=import-outside-toplevel
+        from .exercise import (  # pylint: disable=import-outside-toplevel
             Exercise,
         )
-        from src.types.queue import Queue  # pylint: disable=import-outside-toplevel
+        from .queue import Queue  # pylint: disable=import-outside-toplevel
 
         d = dict(src_dict)
 
