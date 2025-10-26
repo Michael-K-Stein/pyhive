@@ -47,7 +47,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Download wheels from 3.11
         uses: actions/download-artifact@v4
         with:
@@ -65,6 +64,41 @@ jobs:
         with:
           name: dist-3.13
           path: dist
+
+      - name: Create GitHub release for tag
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: ${{ github.ref_name }}
+          body: |
+            Release created by CI for tag ${{ github.ref_name }}.
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload built artifacts to GitHub Release
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          upload_url="${{ steps.create_release.outputs.upload_url }}"
+          if [ -z "${upload_url:-}" ]; then
+            echo "No upload_url received from create_release; skipping release upload"
+            exit 0
+          fi
+          for f in dist/*; do
+            if [ -f "$f" ]; then
+              name=$(basename "$f")
+              echo "Uploading $name to release"
+              curl -sS -X POST \
+                -H "Authorization: token $GITHUB_TOKEN" \
+                -H "Content-Type: application/octet-stream" \
+                --data-binary @"$f" "${upload_url}?name=$name"
+            fi
+          done
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@v1.5.0
