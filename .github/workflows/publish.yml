@@ -93,14 +93,23 @@ jobs:
             echo "No upload_url received from create_release; skipping release upload"
             exit 0
           fi
+          # The create-release action may return a templated upload_url like
+          # https://uploads.github.com/.../assets{?name,label}
+          # Strip any templated suffix so we can append ?name=filename
+          upload_url="${upload_url%\{*}"
           for f in dist/*; do
             if [ -f "$f" ]; then
               name=$(basename "$f")
               echo "Uploading $name to release"
-              curl -sS -X POST \
+              # Use raw upload with application/octet-stream
+              http_code=$(curl -sS -w "%{http_code}" -o /dev/stderr -X POST \
                 -H "Authorization: token $GITHUB_TOKEN" \
                 -H "Content-Type: application/octet-stream" \
-                --data-binary @"$f" "${upload_url}?name=$name"
+                --data-binary @"$f" "${upload_url}?name=$name")
+              if [ "${http_code}" -lt 200 ] || [ "${http_code}" -ge 300 ]; then
+                echo "Upload failed for $name (HTTP $http_code)"
+                exit 1
+              fi
             fi
           done
 
