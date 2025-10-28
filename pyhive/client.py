@@ -21,6 +21,7 @@ from .src.types.program import Program
 from .src.types.subject import Subject
 from .src.types.user import User
 from .src.types.assignment import Assignment
+from .src.types.queue import Queue
 
 if TYPE_CHECKING:
     from .src.types.core_item import HiveCoreItem
@@ -34,6 +35,7 @@ CoreItemTypeT = TypeVar("CoreItemTypeT", bound="HiveCoreItem")
 ItemOrIdT = TypeVar("ItemOrIdT", bound="HiveCoreItem | int")
 
 
+@lru_cache(maxsize=2048)
 def resolve_item_or_id(
     item_or_id: ItemOrIdT | None,
 ) -> int | None:
@@ -177,6 +179,13 @@ class HiveClient(_AuthenticatedHiveClient):
                 "parent_subject__parent_program__id__in",
                 parent_subject__parent_program__id__in,
             )
+
+        parent_subject__id = (
+            parent_subject__id
+            if parent_subject__id is not None
+            else resolve_item_or_id(parent_subject)
+        )
+
         if parent_subject__id is not None:
             query_params.set("parent_subject__id", parent_subject__id)
 
@@ -485,6 +494,19 @@ class HiveClient(_AuthenticatedHiveClient):
             ),
             assignment_id=assignment_id,
             hive_client=self,
+        )
+
+    def get_queue(self, queue_id: int):
+        """Return a single :class:`Queue` by id.
+
+        Args:
+            queue_id: The queue identifier.
+
+        Returns:
+            A populated :class:`Queue` object.
+        """
+        return Queue.from_dict(
+            super().get(f"/api/core/queues/{queue_id}/"),
         )
 
     def _get_core_items(

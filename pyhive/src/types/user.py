@@ -2,10 +2,9 @@
 
 import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Self, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Self, TypeVar, cast, Generator
 
-from attrs import define as _attrs_define
-from attrs import field
+from attrs import field, define
 from dateutil.parser import isoparse
 from .common import UNSET, Unset
 from .core_item import HiveCoreItem
@@ -23,7 +22,7 @@ if TYPE_CHECKING:
 T = TypeVar("T", bound="User")
 
 
-@_attrs_define
+@define
 class User(HiveCoreItem):  # pylint: disable=too-many-instance-attributes
     """Hive management course user.
 
@@ -41,7 +40,7 @@ class User(HiveCoreItem):  # pylint: disable=too-many-instance-attributes
         * `NonBinary` - Nonbinary
     current_assignment (Union[None, int]):
     current_assignment_options (list[int]):
-    mentees (list[int]):
+    mentee_ids (list[int]):
     username (str): Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.
     status (StatusEnum):
         * `Present` - Present
@@ -231,7 +230,9 @@ class User(HiveCoreItem):  # pylint: disable=too-many-instance-attributes
         return field_dict
 
     @classmethod
-    def from_dict(cls, src_dict: Mapping[str, Any], hive_client: "HiveClient") -> Self: # pylint: disable=too-many-locals
+    def from_dict(
+        cls, src_dict: Mapping[str, Any], hive_client: "HiveClient"
+    ) -> Self:  # pylint: disable=too-many-locals
         """Deserialize a User instance from a mapping."""
         d = dict(src_dict)
         id = d.pop("id")
@@ -253,7 +254,7 @@ class User(HiveCoreItem):  # pylint: disable=too-many-instance-attributes
             "list[int]", d.pop("current_assignment_options")
         )
 
-        mentees = cast("list[int]", d.pop("mentees"))
+        mentee_ids = cast("list[int]", d.pop("mentees"))
 
         username = d.pop("username")
 
@@ -342,7 +343,7 @@ class User(HiveCoreItem):  # pylint: disable=too-many-instance-attributes
             gender=gender,
             current_assignment_id=current_assignment,
             current_assignment_options=current_assignment_options,
-            mentee_ids=mentees,
+            mentee_ids=mentee_ids,
             username=username,
             status=status,
             status_date=status_date,
@@ -373,3 +374,75 @@ class User(HiveCoreItem):  # pylint: disable=too-many-instance-attributes
         if self._program is None:
             self._program = self.hive_client.get_program(self.program_id)
         return self._program
+
+    @property
+    def mentees(self) -> list["User"]:
+        """The mentees of this user."""
+        if self._mentees is None:
+            self._mentees = list(
+                self.hive_client.get_users(user__id__in=self.mentee_ids)
+            )
+        return self._mentees
+
+    @property
+    def mentor(self) -> "User | None":
+        """The mentor of this user."""
+        if not isinstance(self.mentor_id, int):
+            return None
+        if self._mentor is None:
+            self._mentor = self.hive_client.get_user(self.mentor_id)
+        return self._mentor
+
+    @property
+    def classes(self) -> list["Class"]:
+        """The classes this user is in."""
+        if self._classes is None:
+            if isinstance(self.class_ids, Unset):
+                self._classes = []
+            else:
+                self._classes = list(
+                    self.hive_client.get_classes(id__in=self.class_ids)
+                )
+        return self._classes
+
+    @property
+    def queue(self) -> "Queue | None":
+        """The queue this user is in."""
+        if not isinstance(self.queue_id, int):
+            return None
+        if self._queue is None:
+            self._queue = self.hive_client.get_queue(self.queue_id)
+        return self._queue
+
+    @property
+    def user_queue(self) -> "Queue | None":
+        """The user queue this user is in."""
+        if not isinstance(self.user_queue_id, int):
+            return None
+        if self._user_queue is None:
+            self._user_queue = self.hive_client.get_queue(self.user_queue_id)
+        return self._user_queue
+
+    @property
+    def override_queue(self) -> "Queue | None":
+        """The override queue this user is in."""
+        if not isinstance(self.override_queue_id, int):
+            return None
+        if self._override_queue is None:
+            self._override_queue = self.hive_client.get_queue(self.override_queue_id)
+        return self._override_queue
+
+    @property
+    def current_assignment(self) -> "Assignment | None":
+        """The current assignment of this user."""
+        if not isinstance(self.current_assignment_id, int):
+            return None
+        if self._current_assignment is None:
+            self._current_assignment = self.hive_client.get_assignment(
+                self.current_assignment_id
+            )
+        return self._current_assignment
+
+    def get_assignments(self) -> Generator["Assignment", None, None]:
+        """Get all assignments for this user."""
+        return self.hive_client.get_assignments(user__id__in=[self.id])

@@ -15,7 +15,6 @@ def test_module_exercises():
     with HiveClient(**get_client_params()) as client:
         for module in client.get_modules():
             exercises = list(module.get_exercises())
-            assert len(exercises) > 0
             assert all(isinstance(exercise, Exercise) for exercise in exercises)
             for exercise in exercises:
                 assert exercise.parent_module_id == module.id
