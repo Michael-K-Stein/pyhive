@@ -6,25 +6,46 @@ typed model objects from :mod:`src.types` and generator-based list
 endpoints for memory-efficient iteration.
 """
 
-from collections.abc import Generator
-from typing import TYPE_CHECKING, Optional, TypeVar, Any
-
+from typing import TYPE_CHECKING, Optional, TypeVar, Any, Sequence, Generator
+from functools import lru_cache
 import httpx
 
+from .src.types.assignment_response import AssignmentResponse
 from .src.authenticated_hive_client import _AuthenticatedHiveClient
 from .src.types.class_ import Class
 from .src.types.enums.class_type_enum import ClassTypeEnum
-from .src.types.exercise import Exercise
+from .src.types.exercise import Exercise, ExerciseLike
 from .src.types.form_field import FormField
 from .src.types.module import Module
 from .src.types.program import Program
 from .src.types.subject import Subject
 from .src.types.user import User
+from .src.types.assignment import Assignment
 
 if TYPE_CHECKING:
     from .src.types.core_item import HiveCoreItem
+    from .src.types.module import ModuleLike
+    from .src.types.subject import SubjectLike
+    from .src.types.exercise import ExerciseLike
+    from .src.types.assignment import AssignmentLike
 
 CoreItemTypeT = TypeVar("CoreItemTypeT", bound="HiveCoreItem")
+
+ItemOrIdT = TypeVar("ItemOrIdT", bound="HiveCoreItem | int")
+
+
+def resolve_item_or_id(
+    item_or_id: ItemOrIdT | None,
+) -> int | None:
+    from .src.types.core_item import HiveCoreItem
+
+    if item_or_id is None:
+        return None
+    if not isinstance(item_or_id, (HiveCoreItem, int)):
+        raise TypeError(
+            f"Expected HiveCoreItem or int, got {type(item_or_id).__name__}"
+        )
+    return item_or_id.id if isinstance(item_or_id, HiveCoreItem) else item_or_id
 
 
 class HiveClient(_AuthenticatedHiveClient):
@@ -47,7 +68,8 @@ class HiveClient(_AuthenticatedHiveClient):
     def get_course_programs(
         self,
         id__in: Optional[list[int]] = None,
-    ) -> Generator[Program]:
+        program_name: Optional[str] = None,
+    ) -> Generator[Program, None, None]:
         """Yield :class:`Program` objects.
 
         Args:
@@ -60,13 +82,16 @@ class HiveClient(_AuthenticatedHiveClient):
         query_params = httpx.QueryParams()
         if id__in is not None:
             query_params.set("id__in", id__in)
-        return (
+        programs = (
             Program.from_dict(program_dict, hive_client=self)
             for program_dict in super().get(
                 "/api/core/course/programs/",
                 params=query_params,
             )
         )
+        if program_name is not None:
+            programs = filter(lambda p: p.name == program_name, programs)
+        return programs
 
     def get_program(self, program_id: int) -> Program:
         """Return a single :class:`Program` by id.
@@ -82,10 +107,11 @@ class HiveClient(_AuthenticatedHiveClient):
             hive_client=self,
         )
 
-    def get_course_subjects(
+    def get_subjects(
         self,
         parent_program__id__in: Optional[list[int]] = None,
-    ) -> Generator[Subject]:
+        subject_name: Optional[str] = None,
+    ) -> Generator[Subject, None, None]:
         """Yield :class:`Subject` objects for course subjects.
 
         Args:
@@ -99,13 +125,18 @@ class HiveClient(_AuthenticatedHiveClient):
         query_params = httpx.QueryParams()
         if parent_program__id__in is not None:
             query_params.set("parent_program__id__in", parent_program__id__in)
-        return (
+        subjects = (
             Subject.from_dict(subject_dict, hive_client=self)
             for subject_dict in super().get(
                 "/api/core/course/subjects/",
                 params=query_params,
             )
         )
+
+        if subject_name is not None:
+            subjects = filter(lambda s: s.name == subject_name, subjects)
+
+        return subjects
 
     def get_subject(self, subject_id: int) -> Subject:
         """Return a single :class:`Subject` by id.
@@ -121,12 +152,14 @@ class HiveClient(_AuthenticatedHiveClient):
             hive_client=self,
         )
 
-    def get_course_modules(
+    def get_modules(
         self,
         /,
         parent_subject__id: Optional[int] = None,
         parent_subject__parent_program__id__in: Optional[list[int]] = None,
-    ) -> Generator[Module]:
+        parent_subject: Optional["SubjectLike"] = None,
+        module_name: Optional[str] = None,
+    ) -> Generator[Module, None, None]:
         """Yield :class:`Module` objects for course modules.
 
         Args:
@@ -147,13 +180,16 @@ class HiveClient(_AuthenticatedHiveClient):
         if parent_subject__id is not None:
             query_params.set("parent_subject__id", parent_subject__id)
 
-        return (
+        modules = (
             Module.from_dict(subject_dict, hive_client=self)
             for subject_dict in super().get(
                 "/api/core/course/modules/",
                 params=query_params,
             )
         )
+        if module_name is not None:
+            modules = filter(lambda m: m.name == module_name, modules)
+        return modules
 
     def get_module(self, module_id: int) -> Module:
         """Return a single :class:`Module` by id.
@@ -179,14 +215,35 @@ class HiveClient(_AuthenticatedHiveClient):
         ] = None,
         queue__id: Optional[int] = None,
         tags__id__in: Optional[list[int]] = None,
-    ):
+        parent_module: Optional["ModuleLike"] = None,
+        parent_subject: Optional["SubjectLike"] = None,
+        exercise_name: Optional[str] = None,
+    ) -> Generator[Exercise, None, None]:
         """Yield :class:`Exercise` objects.
 
         Accepts common filtering keyword args which are forwarded to the
         underlying list endpoint.
         """
 
-        return self._get_core_items(
+        if parent_module is not None and parent_module__id is not None:
+            assert parent_module__id == resolve_item_or_id(parent_module)
+        parent_module__id = (
+            parent_module__id
+            if parent_module__id is not None
+            else resolve_item_or_id(parent_module)
+        )
+
+        if parent_subject is not None and parent_module__parent_subject__id is not None:
+            assert parent_module__parent_subject__id == resolve_item_or_id(
+                parent_subject
+            )
+        parent_module__parent_subject__id = (
+            parent_module__parent_subject__id
+            if parent_module__parent_subject__id is not None
+            else resolve_item_or_id(parent_subject)
+        )
+
+        exercises = self._get_core_items(
             "/api/core/course/exercises/",
             Exercise,
             parent_module__id=parent_module__id,
@@ -195,6 +252,9 @@ class HiveClient(_AuthenticatedHiveClient):
             queue__id=queue__id,
             tags__id__in=tags__id__in,
         )
+        if exercise_name is not None:
+            exercises = filter(lambda e: e.name == exercise_name, exercises)
+        return exercises
 
     def get_exercise(self, exercise_id: int) -> Exercise:
         """Return a single :class:`Exercise` by id.
@@ -210,6 +270,76 @@ class HiveClient(_AuthenticatedHiveClient):
             hive_client=self,
         )
 
+    def get_assignments(
+        self,
+        *,
+        exercise__id: Optional[int] = None,
+        exercise__parent_module__id: Optional[int] = None,
+        exercise__parent_module__parent_subject__id: Optional[int] = None,
+        exercise__tags__id__in: Optional[Sequence[int]] = None,
+        queue__id: Optional[int] = None,
+        user__classes__id: Optional[int] = None,
+        user__classes__id__in: Optional[Sequence[int]] = None,
+        user__id__in: Optional[Sequence[int]] = None,
+        user__mentor__id: Optional[int] = None,
+        user__mentor__id__in: Optional[Sequence[int]] = None,
+        user__program__id__in: Optional[Sequence[int]] = None,
+        parent_module: Optional["ModuleLike"] = None,
+        parent_subject: Optional["SubjectLike"] = None,
+    ) -> Generator[Assignment, None, None]:
+        """Fetch assignments filtered by various optional parameters."""
+
+        if parent_module is not None and exercise__parent_module__id is not None:
+            assert exercise__parent_module__id == resolve_item_or_id(parent_module)
+        exercise__parent_module__id = (
+            exercise__parent_module__id
+            if exercise__parent_module__id is not None
+            else resolve_item_or_id(parent_module)
+        )
+
+        if (
+            parent_subject is not None
+            and exercise__parent_module__parent_subject__id is not None
+        ):
+            assert exercise__parent_module__parent_subject__id == resolve_item_or_id(
+                parent_subject
+            )
+        exercise__parent_module__parent_subject__id = (
+            exercise__parent_module__parent_subject__id
+            if exercise__parent_module__parent_subject__id is not None
+            else resolve_item_or_id(parent_subject)
+        )
+
+        return self._get_core_items(
+            "/api/core/assignments/",
+            Assignment,
+            exercise__id=exercise__id,
+            exercise__parent_module__id=exercise__parent_module__id,
+            exercise__parent_module__parent_subject__id=exercise__parent_module__parent_subject__id,
+            exercise__tags__id__in=exercise__tags__id__in,
+            queue__id=queue__id,
+            user__classes__id=user__classes__id,
+            user__classes__id__in=user__classes__id__in,
+            user__id__in=user__id__in,
+            user__mentor__id=user__mentor__id,
+            user__mentor__id__in=user__mentor__id__in,
+            user__program__id__in=user__program__id__in,
+        )
+
+    def get_assignment(self, assignment_id: int) -> Assignment:
+        """Return a single :class:`Assignment` by id.
+
+        Args:
+            assignment_id: The assignment identifier.
+
+        Returns:
+            A populated :class:`Assignment` object.
+        """
+        return Assignment.from_dict(
+            super().get(f"/api/core/assignments/{assignment_id}/"),
+            hive_client=self,
+        )
+
     def get_users(  # pylint: disable=too-many-arguments
         self,
         *,
@@ -220,7 +350,7 @@ class HiveClient(_AuthenticatedHiveClient):
         mentor__id__in: Optional[list[int]] = None,
         program__id__in: Optional[list[int]] = None,
         program_checker__id__in: Optional[list[int]] = None,
-    ) -> Generator[User]:
+    ) -> Generator[User, None, None]:
         """Yield :class:`User` objects from the management users endpoint.
 
         All kwargs are optional filters forwarded to the API.
@@ -259,7 +389,7 @@ class HiveClient(_AuthenticatedHiveClient):
         name: Optional[str] = None,
         program__id__in: Optional[list[int]] = None,
         type_: Optional[ClassTypeEnum] = None,
-    ) -> Generator[Class]:
+    ) -> Generator[Class, None, None]:
         """Yield :class:`Class` objects from the management classes endpoint.
 
         Filters may be provided as keyword arguments.
@@ -291,15 +421,18 @@ class HiveClient(_AuthenticatedHiveClient):
             hive_client=self,
         )
 
+    @lru_cache(maxsize=256)
     def get_exercise_fields(
         self,
-        exercise_id: int,
-    ) -> Generator[FormField]:
+        exercise: "ExerciseLike",
+    ) -> Generator[FormField, None, None]:
         """Yield :class:`FormField` objects for an exercise.
 
         Args:
-            exercise_id: The exercise identifier.
+            exercise: The exercise identifier.
         """
+
+        exercise_id = resolve_item_or_id(exercise)
 
         return self._get_core_items(
             f"/api/core/course/exercises/{exercise_id}/fields/",
@@ -307,9 +440,10 @@ class HiveClient(_AuthenticatedHiveClient):
             exercise_id=exercise_id,
         )
 
+    @lru_cache(maxsize=1024)
     def get_exercise_field(
         self,
-        exercise_id: int,
+        exercise: "ExerciseLike",
         field_id: int,
     ) -> FormField:
         """Return a single :class:`FormField` for an exercise by id.
@@ -321,8 +455,35 @@ class HiveClient(_AuthenticatedHiveClient):
         Returns:
             A populated :class:`FormField` object.
         """
+        exercise_id = resolve_item_or_id(exercise)
         return FormField.from_dict(
             super().get(f"/api/core/course/exercises/{exercise_id}/fields/{field_id}/"),
+            hive_client=self,
+        )
+
+    def get_assignment_responses(
+        self,
+        assignment: "AssignmentLike",
+    ) -> Generator[AssignmentResponse, None, None]:
+        assignment_id = resolve_item_or_id(assignment)
+        return self._get_core_items(
+            f"/api/core/assignments/{assignment_id}/responses/",
+            AssignmentResponse,
+            assignment_id=assignment_id,
+            extra_ctor_params={"assignment_id": assignment_id},
+        )
+
+    def get_assignment_response(
+        self,
+        assignment: "AssignmentLike",
+        response_id: int,
+    ) -> AssignmentResponse:
+        assignment_id = resolve_item_or_id(assignment)
+        return AssignmentResponse.from_dict(
+            super().get(
+                f"/api/core/assignments/{assignment_id}/responses/{response_id}/"
+            ),
+            assignment_id=assignment_id,
             hive_client=self,
         )
 
@@ -331,8 +492,9 @@ class HiveClient(_AuthenticatedHiveClient):
         endpoint: str,
         item_type: type[CoreItemTypeT],
         /,
+        extra_ctor_params: Optional[dict[str, Any]] = None,
         **kwargs: dict[str, Any],  # noqa: ANN401
-    ) -> Generator[CoreItemTypeT]:
+    ) -> Generator[CoreItemTypeT, None, None]:
         """Internal helper to yield typed core items from a list endpoint.
 
         Args:
@@ -343,6 +505,8 @@ class HiveClient(_AuthenticatedHiveClient):
         Yields:
             Instances of ``item_type`` created via ``from_dict``.
         """
+        if extra_ctor_params is None:
+            extra_ctor_params = {}
 
         query_params = httpx.QueryParams()
         for name, value in kwargs.items():
@@ -350,6 +514,6 @@ class HiveClient(_AuthenticatedHiveClient):
                 query_params = query_params.set(name, value)
 
         return (
-            item_type.from_dict(x, hive_client=self)
+            item_type.from_dict(x, **extra_ctor_params, hive_client=self)
             for x in super().get(endpoint, params=query_params)
         )

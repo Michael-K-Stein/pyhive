@@ -2,7 +2,7 @@
 
 import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Self, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Self, TypeVar, cast, Generator
 
 from attrs import define, field
 from dateutil.parser import isoparse
@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from ...client import HiveClient
     from .exercise import Exercise
     from .user import User
+    from .assignment_response import AssignmentResponse
 
 T = TypeVar("T", bound="Assignment")
 
@@ -37,7 +38,7 @@ class Assignment(HiveCoreItem):
         notifications: List of related notifications.
         last_staff_updated: Timestamp of the last staff update.
         work_time: Total work time in minutes.
-        student_assignment_status: The student’s view of the assignment status.
+        student_assignment_status: The student's view of the assignment status.
         description: Optional text description.
         submission_count: Total number of submissions.
         total_check_count: Number of total checks.
@@ -190,3 +191,18 @@ class Assignment(HiveCoreItem):
             and self.assignment_status == value.assignment_status
             and self.exercise == value.exercise
         )
+
+    def __lt__(self, value: object) -> bool:
+        if not isinstance(value, Assignment):
+            return NotImplemented
+        return self.user.number < value.user.number
+
+    def get_responses(self) -> Generator["AssignmentResponse", None, None]:
+        return self.hive_client.get_assignment_responses(assignment_id=self.id)
+
+    def __iter__(self) -> Generator["Assignment", None, None]:
+        """Allow iteration over this Assignment to yield its responses."""
+        yield from self.get_responses()
+
+
+AssignmentLike = TypeVar("AssignmentLike", Assignment, int)

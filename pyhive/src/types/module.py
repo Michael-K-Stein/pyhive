@@ -7,7 +7,7 @@ lazy loading of parent subject, and retrieval of exercises.
 from collections.abc import Generator, Mapping
 from typing import TYPE_CHECKING, Any, Self, TypeVar, cast
 
-from attrs import define as _attrs_define
+from attrs import define
 from attrs import field
 from .enums.sync_status_enum import SyncStatusEnum
 from .exercise import Exercise
@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 T = TypeVar("T", bound="Module")
 
 
-@_attrs_define
+@define
 class Module(HiveCoreItem):
     """Course Subject Module.
 
@@ -58,10 +58,6 @@ class Module(HiveCoreItem):
         if self._parent_subject is None:
             self._parent_subject = self.hive_client.get_subject(self.parent_subject_id)
         return self._parent_subject
-
-    def get_exercises(self) -> Generator[Exercise]:
-        """Fetch all exercises within this module."""
-        return self.hive_client.get_exercises(parent_module__id=self.id)
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize the module to a dictionary."""
@@ -105,3 +101,30 @@ class Module(HiveCoreItem):
         if not isinstance(value, Module):
             return NotImplemented
         return self.order < value.order
+
+    def get_exercises(self) -> Generator[Exercise]:
+        """Fetch all exercises within this module."""
+        return self.hive_client.get_exercises(parent_module__id=self.id)
+
+    def get_exercise(self, exercise_name: str) -> Exercise:
+        exercises = self.hive_client.get_exercises(
+            parent_module__id=self.id,
+            exercise_name=exercise_name,
+        )
+
+        if len(exercises) == 0:
+            raise ValueError(
+                f"Exercise '{exercise_name}' not found in module '{self.name}'"
+            )
+        elif len(exercises) > 1:
+            raise ValueError(
+                f"Multiple exercises named '{exercise_name}' found in module '{self.name}'"
+            )
+        return exercises[0]
+
+    def __iter__(self) -> Generator["Exercise", None, None]:
+        """Allow iteration over this Module to yield its exercises."""
+        yield from self.get_exercises()
+
+
+ModuleLike = TypeVar("ModuleLike", Module, int)

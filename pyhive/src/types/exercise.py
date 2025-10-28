@@ -1,6 +1,5 @@
 """Model for exercises in course modules."""
 
-from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Self, TypeVar, cast
 
 from attrs import define, field
@@ -9,11 +8,13 @@ from .core_item import HiveCoreItem
 from .enums.exercise_patbas_enum import PatbasEnum
 from .enums.exercise_preview_types import ExercisePreviewTypes
 from .enums.sync_status_enum import SyncStatusEnum
+from typing import Generator
 
 if TYPE_CHECKING:
     from ...client import HiveClient
     from .module import Module
     from .subject import Subject
+    from .assignment import Assignment
 
 T = TypeVar("T", bound="Exercise")
 
@@ -141,7 +142,7 @@ class Exercise(HiveCoreItem):
         return result
 
     @classmethod
-    def from_dict(cls, src_dict: Mapping[str, Any], hive_client: "HiveClient") -> Self:
+    def from_dict(cls, src_dict: dict[str, Any], hive_client: "HiveClient") -> Self:
         """Deserialize Exercise from dictionary."""
         d = dict(src_dict)
 
@@ -190,3 +191,18 @@ class Exercise(HiveCoreItem):
         if not isinstance(value, Exercise):
             return NotImplemented
         return self.order < value.order
+
+    def get_assignments(self) -> Generator["Assignment", None, None]:
+        """Fetch all assignments associated with this exercise."""
+        return self.hive_client.get_assignments(
+            exercise__id=self.id,
+            exercise__parent_module__id=self.parent_module_id,
+            exercise__parent_module__parent_subject__id=self.parent_subject_id,
+        )
+
+    def __iter__(self) -> Generator["Assignment", None, None]:
+        """Allow iteration over this Exercise to yield its assignments."""
+        yield from self.get_assignments()
+
+
+ExerciseLike = TypeVar("ExerciseLike", Exercise, int)

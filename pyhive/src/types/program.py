@@ -89,7 +89,7 @@ class Program(HiveCoreItem):
 
     def get_subjects(self) -> Generator[Subject]:
         """Returns all subjects belonging to this program."""
-        return self.hive_client.get_course_subjects(parent_program__id__in=[self.id])
+        return self.hive_client.get_subjects(parent_program__id__in=[self.id])
 
     def to_dict(self) -> dict[str, Any]:
         field_dict: dict[str, Any] = {
@@ -169,4 +169,12 @@ class Program(HiveCoreItem):
     def __eq__(self, value: object) -> bool:
         if not isinstance(value, Program):
             return False
-        return self.id == value.id and self.checker_id == value.checker_id and self.name == value.name
+        return (
+            self.id == value.id
+            and self.checker_id == value.checker_id
+            and self.name == value.name
+        )
+
+    def __iter__(self) -> Generator["Subject", None, None]:
+        """Allow iteration over this Program to yield its subjects."""
+        yield from self.get_subjects()

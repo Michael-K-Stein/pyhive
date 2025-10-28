@@ -6,14 +6,14 @@ from tests.common import get_client_params
 
 def test_get():
     with HiveClient(**get_client_params()) as client:
-        for module in client.get_course_modules():
+        for module in client.get_modules():
             assert module is not None
             assert isinstance(module, Module)
 
 
 def test_module_exercises():
     with HiveClient(**get_client_params()) as client:
-        for module in client.get_course_modules():
+        for module in client.get_modules():
             exercises = list(module.get_exercises())
             assert len(exercises) > 0
             assert all(isinstance(exercise, Exercise) for exercise in exercises)

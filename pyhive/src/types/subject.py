@@ -103,7 +103,32 @@ class Subject(HiveCoreItem):
             Generator[Module]: Generator of Module instances.
 
         """
-        return self.hive_client.get_course_modules(parent_subject__id=self.id)
+        return self.hive_client.get_modules(parent_subject__id=self.id)
+
+    def get_module(self, module_name: str) -> "Module":
+        """Retrieve a specific module by name within this subject.
+
+        Args:
+            module_name (str): The name of the module to retrieve.
+
+        Returns:
+            Module: The Module instance if found.
+
+        """
+        modules = list(
+            self.hive_client.get_modules(
+                parent_subject__id=self.id, module_name=module_name
+            )
+        )
+        if len(modules) == 0:
+            raise ValueError(
+                f"Module '{module_name}' not found in subject '{self.name}'"
+            )
+        elif len(modules) > 1:
+            raise ValueError(
+                f"Multiple modules named '{module_name}' found in subject '{self.name}'"
+            )
+        return modules[0]
 
     def __eq__(self, value: object) -> bool:
         if not isinstance(value, Subject):
@@ -114,3 +139,10 @@ class Subject(HiveCoreItem):
         if not isinstance(value, Subject):
             return NotImplemented
         return self.symbol < value.symbol
+
+    def __iter__(self) -> Generator["Module", None, None]:
+        """Allow iteration over this Subject to yield its modules."""
+        yield from self.get_modules()
+
+
+SubjectLike = TypeVar("SubjectLike", Subject, int)
