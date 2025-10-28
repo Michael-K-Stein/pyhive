@@ -200,7 +200,7 @@ class Assignment(HiveCoreItem):
     def get_responses(self) -> Generator["AssignmentResponse", None, None]:
         """Fetch all responses to this assignment.
         Responses include both student and mentor submissions, comments, WIP, ..."""
-        return self.hive_client.get_assignment_responses(assignment_id=self.id)
+        return self.hive_client.get_assignment_responses(assignment=self.id)
 
     def __iter__(self) -> Generator["Assignment", None, None]:
         """Allow iteration over this Assignment to yield its responses."""

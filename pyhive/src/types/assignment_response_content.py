@@ -82,7 +82,7 @@ class AssignmentResponseContent(HiveCoreItem):
         """Lazily load and return the field this assignment belongs to."""
         if self._field is None:
             self._field = self.hive_client.get_exercise_field(
-                exercise_id=self.assignment.exercise_id, field_id=self.field_id
+                exercise=self.assignment.exercise_id, field_id=self.field_id
             )
         return self._field
 
@@ -100,7 +100,7 @@ class AssignmentResponseContent(HiveCoreItem):
         """Lazily load and return the assignment response this content belongs to."""
         if self._assignment_response is None:
             self._assignment_response = self.hive_client.get_assignment_response(
-                assignment_id=self.assignment_id,
+                assignment=self.assignment_id,
                 response_id=self.assignment_response_id,
             )
         return self._assignment_response
