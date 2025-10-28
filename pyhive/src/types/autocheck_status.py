@@ -1,20 +1,23 @@
+"""AutoCheckStatus type definition."""
+
 import datetime
-
 from collections.abc import Mapping
-
-from typing import Any, TypeVar, Union, cast
-
+from typing import Any, TypeVar, Union, cast, TYPE_CHECKING
 from attrs import define
 from dateutil.parser import isoparse
 
+from .core_item import HiveCoreItem
 from .enums.action_enum import ActionEnum
 from .common import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ...client import HiveClient
 
 T = TypeVar("T", bound="AutoCheckStatus")
 
 
 @define
-class AutoCheckStatus:
+class AutoCheckStatus(HiveCoreItem):
     """
 
     Attributes:
@@ -32,6 +35,7 @@ class AutoCheckStatus:
 
     """
 
+    hive_client: "HiveClient"
     id: int
     time: datetime.datetime
     action: ActionEnum
@@ -62,7 +66,11 @@ class AutoCheckStatus:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+    def from_dict(
+        cls: type[T],
+        src_dict: Mapping[str, Any],
+        hive_client: "HiveClient",
+    ) -> T:
         d = dict(src_dict)
         id = d.pop("id")
         time = isoparse(d.pop("time"))
@@ -77,11 +85,10 @@ class AutoCheckStatus:
 
         payload = _parse_payload(d.pop("payload", UNSET))
 
-        status = cls(
+        return cls(
+            hive_client=hive_client,
             id=id,
             time=time,
             action=action,
             payload=payload,
         )
-
-        return status

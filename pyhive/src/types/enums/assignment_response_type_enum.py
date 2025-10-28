@@ -1,7 +1,11 @@
+"""Enumeration for Assignment Response Types."""
+
 from enum import Enum
 
 
 class AssignmentResponseTypeEnum(str, Enum):
+    """Enumeration of possible assignment response types."""
+
     AUTOCHECK = "AutoCheck"
     COMMENT = "Comment"
     DONE = "Done"

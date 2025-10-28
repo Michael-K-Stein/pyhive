@@ -14,7 +14,7 @@ from .src.types.assignment_response import AssignmentResponse
 from .src.authenticated_hive_client import _AuthenticatedHiveClient
 from .src.types.class_ import Class
 from .src.types.enums.class_type_enum import ClassTypeEnum
-from .src.types.exercise import Exercise, ExerciseLike
+from .src.types.exercise import Exercise
 from .src.types.form_field import FormField
 from .src.types.module import Module
 from .src.types.program import Program
@@ -39,7 +39,10 @@ ItemOrIdT = TypeVar("ItemOrIdT", bound="HiveCoreItem | int")
 def resolve_item_or_id(
     item_or_id: ItemOrIdT | None,
 ) -> int | None:
-    from .src.types.core_item import HiveCoreItem
+    """Resolve a HiveCoreItem or int to an int ID."""
+    from .src.types.core_item import (
+        HiveCoreItem,
+    )  # pylint: disable=import-outside-toplevel
 
     if item_or_id is None:
         return None
@@ -67,7 +70,7 @@ class HiveClient(_AuthenticatedHiveClient):
         super().__enter__()
         return self
 
-    def get_course_programs(
+    def get_programs(
         self,
         id__in: Optional[list[int]] = None,
         program_name: Optional[str] = None,
@@ -279,7 +282,7 @@ class HiveClient(_AuthenticatedHiveClient):
             hive_client=self,
         )
 
-    def get_assignments(
+    def get_assignments(  # pylint: disable=too-many-arguments
         self,
         *,
         exercise__id: Optional[int] = None,
@@ -474,6 +477,7 @@ class HiveClient(_AuthenticatedHiveClient):
         self,
         assignment: "AssignmentLike",
     ) -> Generator[AssignmentResponse, None, None]:
+        """Get assignment responses for a given assignment."""
         assignment_id = resolve_item_or_id(assignment)
         return self._get_core_items(
             f"/api/core/assignments/{assignment_id}/responses/",
@@ -487,6 +491,7 @@ class HiveClient(_AuthenticatedHiveClient):
         assignment: "AssignmentLike",
         response_id: int,
     ) -> AssignmentResponse:
+        """Return a single :class:`AssignmentResponse` by id."""
         assignment_id = resolve_item_or_id(assignment)
         return AssignmentResponse.from_dict(
             super().get(
@@ -507,6 +512,7 @@ class HiveClient(_AuthenticatedHiveClient):
         """
         return Queue.from_dict(
             super().get(f"/api/core/queues/{queue_id}/"),
+            hive_client=self,
         )
 
     def _get_core_items(

@@ -1,9 +1,11 @@
-import datetime
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast, Generator
+"""Responses to assignments given to students."""
 
+import datetime
+from typing import TYPE_CHECKING, Any, TypeVar, Union, Generator
 from attrs import define, field
 from dateutil.parser import isoparse
 
+from .core_item import HiveCoreItem
 from .autocheck_status import AutoCheckStatus
 from .assignment import Assignment
 from .enums.assignment_response_type_enum import AssignmentResponseTypeEnum
@@ -12,8 +14,6 @@ from .common import UNSET, Unset
 if TYPE_CHECKING:
     from .user import User
     from .assignment_response_content import AssignmentResponseContent
-    from .autocheck_status import AutoCheckStatus
-    from .assignment import Assignment
     from ...client import HiveClient
 
 
@@ -21,7 +21,7 @@ T = TypeVar("T", bound="AssignmentResponse")
 
 
 @define
-class AssignmentResponse:
+class AssignmentResponse(HiveCoreItem):
     """
     Attributes:
         id (int):
@@ -57,20 +57,13 @@ class AssignmentResponse:
 
     # Lazy-loaded objects
     _user: "User | None" = field(init=False, default=None)
+    _assignment: "Assignment | None" = field(init=False, default=None)
 
     def to_dict(self) -> dict[str, Any]:
-        id = self.id
-
-        user = self.user
-
         contents = []
         for contents_item_data in self.contents:
             contents_item = contents_item_data.to_dict()
             contents.append(contents_item)
-
-        date = self.date.isoformat()
-
-        response_type = self.response_type.value
 
         autocheck_statuses: Union[None, list[dict[str, Any]]]
         if isinstance(self.autocheck_statuses, list):
@@ -95,11 +88,11 @@ class AssignmentResponse:
         field_dict: dict[str, Any] = {}
         field_dict.update(
             {
-                "id": id,
-                "user": user,
+                "id": self.id,
+                "user": self.user,
                 "contents": contents,
-                "date": date,
-                "response_type": response_type,
+                "date": self.date.isoformat(),
+                "response_type": self.response_type.value,
                 "autocheck_statuses": autocheck_statuses,
             }
         )
@@ -115,14 +108,15 @@ class AssignmentResponse:
         return field_dict
 
     @classmethod
-    def from_dict(
+    def from_dict(  # pylint: disable=too-many-locals, arguments-differ
         cls: type[T],
         src_dict: dict[str, Any],
         assignment_id: int,
         hive_client: "HiveClient",
     ) -> T:
-        from .assignment_response_content import AssignmentResponseContent
-        from .autocheck_status import AutoCheckStatus
+        from .assignment_response_content import (
+            AssignmentResponseContent,
+        )  # pylint: disable=import-outside-toplevel
 
         d = dict(src_dict)
         id = d.pop("id")
@@ -138,7 +132,7 @@ class AssignmentResponse:
         for contents_item_data in _contents:
             contents_item = AssignmentResponseContent.from_dict(
                 contents_item_data,
-                assignment_id=assignment_id,
+                assignment=assignment_id,
                 assignment_response_id=id,
                 hive_client=hive_client,
             )
@@ -151,22 +145,19 @@ class AssignmentResponse:
         ) -> Union[None, list["AutoCheckStatus"]]:
             if data is None:
                 return data
-            try:
-                if not isinstance(data, list):
-                    raise TypeError()
-                autocheck_statuses_type_0 = []
-                _autocheck_statuses_type_0 = data
-                for autocheck_statuses_type_0_item_data in _autocheck_statuses_type_0:
-                    autocheck_statuses_type_0_item = AutoCheckStatus.from_dict(
-                        autocheck_statuses_type_0_item_data
-                    )
+            if not isinstance(data, list):
+                raise TypeError(f"Autocheck statuses must be a list, not {type(data)}")
+            autocheck_statuses_type_0 = []
+            _autocheck_statuses_type_0 = data
+            for autocheck_statuses_type_0_item_data in _autocheck_statuses_type_0:
+                autocheck_statuses_type_0_item = AutoCheckStatus.from_dict(
+                    autocheck_statuses_type_0_item_data,
+                    hive_client=hive_client,
+                )
 
-                    autocheck_statuses_type_0.append(autocheck_statuses_type_0_item)
+                autocheck_statuses_type_0.append(autocheck_statuses_type_0_item)
 
-                return autocheck_statuses_type_0
-            except:  # noqa: E722
-                pass
-            return cast(Union[None, list["AutoCheckStatus"]], data)
+            return autocheck_statuses_type_0
 
         autocheck_statuses = _parse_autocheck_statuses(d.pop("autocheck_statuses"))
 
@@ -202,6 +193,7 @@ class AssignmentResponse:
 
     @property
     def assignment(self) -> "Assignment":
+        """Lazily load and return the assignment this response belongs to."""
         if self._assignment is None:
             self._assignment = self.hive_client.get_assignment(
                 assignment_id=self.assignment_id

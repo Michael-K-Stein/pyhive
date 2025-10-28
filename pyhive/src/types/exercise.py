@@ -1,6 +1,6 @@
 """Model for exercises in course modules."""
 
-from typing import TYPE_CHECKING, Any, Self, TypeVar, cast
+from typing import Generator, TYPE_CHECKING, Any, Self, TypeVar, cast
 
 from attrs import define, field
 from .common import UNSET, Unset
@@ -8,7 +8,6 @@ from .core_item import HiveCoreItem
 from .enums.exercise_patbas_enum import PatbasEnum
 from .enums.exercise_preview_types import ExercisePreviewTypes
 from .enums.sync_status_enum import SyncStatusEnum
-from typing import Generator
 
 if TYPE_CHECKING:
     from ...client import HiveClient

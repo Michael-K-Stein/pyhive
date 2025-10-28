@@ -124,7 +124,7 @@ class Subject(HiveCoreItem):
             raise ValueError(
                 f"Module '{module_name}' not found in subject '{self.name}'"
             )
-        elif len(modules) > 1:
+        if len(modules) > 1:
             raise ValueError(
                 f"Multiple modules named '{module_name}' found in subject '{self.name}'"
             )

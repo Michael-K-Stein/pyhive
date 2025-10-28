@@ -107,6 +107,7 @@ class Module(HiveCoreItem):
         return self.hive_client.get_exercises(parent_module__id=self.id)
 
     def get_exercise(self, exercise_name: str) -> Exercise:
+        """Fetch a specific exercise by name within this module."""
         exercises = self.hive_client.get_exercises(
             parent_module__id=self.id,
             exercise_name=exercise_name,
@@ -116,7 +117,7 @@ class Module(HiveCoreItem):
             raise ValueError(
                 f"Exercise '{exercise_name}' not found in module '{self.name}'"
             )
-        elif len(exercises) > 1:
+        if len(exercises) > 1:
             raise ValueError(
                 f"Multiple exercises named '{exercise_name}' found in module '{self.name}'"
             )

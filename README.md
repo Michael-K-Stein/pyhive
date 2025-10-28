@@ -1,83 +1,142 @@
+## PyHive — a minimal Hive API client for Python
 
-# pyhive — a stupid simple Hive Python API
+PyHive (package: `PyHiveLMS`) is a small, synchronous Python client for the Hive LMS API. It provides:
 
-Lightweight, no-fuss Python client for the Hive service used in this repo. It exposes a small, synchronous HTTP client (as a context manager) and typed model objects for common Hive resources like programs, subjects, modules, exercises and users.
+- A simple `HiveClient` you use as a context manager to handle authentication and the HTTP session.
+- Generator-based list endpoints for memory-efficient iteration of large result sets.
+- Typed model objects (in `src/types`) for convenient access to API response fields.
 
-## Highlights
-- Minimal, dependency-light wrapper around the Hive API
-- Generator-based list endpoints for memory-efficient iteration
-- Typed model objects under `src.types` for convenience
+This README focuses on how to use the library as an application developer or data consumer of a Hive installation.
 
 ## Install
-This project uses plain Python. From the repository root you can install the development requirements or install the package locally.
 
-1) Create and activate a virtualenv (recommended)
+Install from PyPI. It's recommended to use a virtual environment.
 
-Windows (PowerShell):
-
-```pwsh
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-```
-
-2) Install dependencies
+Using pip (PyPI):
 
 ```pwsh
-pip install -r requirements.txt
-# or install the package in editable mode
-pip install -e .
+pip install PyHiveLMS
 ```
 
-## Quickstart
-The main client class is `HiveClient` in `pyhive.client`. It is used as a context manager to ensure proper session/login handling.
 
-Example — list programs and print their ids and names:
+## Quickstart — connect and list resources
+
+The primary entry point is `HiveClient`. It accepts your Hive username, password and the base URL for your Hive instance. Use it as a context manager to ensure the underlying HTTP session is closed cleanly.
+
+Example — list programs and print name/ID:
 
 ```python
-from pyhive.client import HiveClient
+from pyhive import HiveClient
 
-USERNAME = "yourusername"
-PASSWORD = "yourpassword"
-HIVE_URL = "https://hive.example.com"
+USERNAME = "Mentor123"
+PASSWORD = "Password1"
+HIVE_URL = "https://hive.org"
 
 with HiveClient(USERNAME, PASSWORD, HIVE_URL) as client:
-	for program in client.get_course_programs():
+	for program in client.get_programs():
 		print(program.id, program.name)
 ```
 
-Example — fetch a program by id:
+Example — fetch a program, its subjects and modules:
+
+```python
+from pyhive import HiveClient
+
+with HiveClient(USERNAME, PASSWORD, HIVE_URL) as client:
+	program = client.get_program(42)
+	print("Program:", program.name)
+
+	# list subjects for the same program
+	subjects = list(client.get_subjects(parent_program__id__in=[program.id]))
+	for subject in subjects:
+		print(" -", subject.id, subject.name)
+
+	# modules for the first subject
+	if subjects:
+		for module in client.get_modules(parent_subject=subjects[0]):
+			print("   *", module.id, module.name)
+```
+
+Example — find exercises in a module and read their form fields:
 
 ```python
 with HiveClient(USERNAME, PASSWORD, HIVE_URL) as client:
-	program = client.get_program(42)
-	print(program.name, program.description)
+	# you can pass ids or model objects to filter helpers
+	module = client.get_module(123)
+	for exercise in client.get_exercises(parent_module=module):
+		print(exercise.id, exercise.name)
+		for field in client.get_exercise_fields(exercise):
+			print("     field:", field.id, field.label)
 ```
 
-Notes on generators: list-style endpoints (e.g. `get_course_programs`, `get_exercises`, `get_users`, `get_classes`) return generators of typed model objects — iterate over them or convert to a list if you need random access.
+Example — list assignments for a user and read responses:
 
-## API contract (short)
-- Initialization: `HiveClient(username: str, password: str, hive_url: str, **kwargs)`
-- Common methods return either a single typed object (e.g. `get_program(id)`) or a generator of objects (e.g. `get_course_programs()`)
-- Model classes provide `.from_dict(...)` constructors and are found under `src.types`.
+```python
+with HiveClient(USERNAME, PASSWORD, HIVE_URL) as client:
+	assignments = client.get_assignments(user__id__in=[55])
+	for a in assignments:
+		print("Assignment:", a.id, a.exercise_name)
+		for resp in client.get_assignment_responses(a):
+			print("  response:", resp.id, resp.submitted_by)
+```
 
-Error handling: HTTP-level errors raised by the underlying request logic will surface; catch exceptions around client calls as needed.
+## Filtering and convenience
 
-## Tests
-Run the unit tests with pytest from the repository root:
+- List endpoints (`get_programs`, `get_subjects`, `get_modules`, `get_exercises`, `get_assignments`, `get_users`, etc.) accept filter keyword arguments that are forwarded to the API. Use `id__in`, `parent_program__id__in`, `queue__id`, and the other documented kwargs to restrict results.
+- Many methods accept either an integer id or a model instance. For example `client.get_exercise_fields(exercise_id_or_model)` accepts either.
+
+## Error handling
+
+Network and HTTP errors are surfaced from the underlying `httpx` client. Typical patterns:
+
+```python
+from httpx import HTTPError
+
+try:
+	with HiveClient(USERNAME, PASSWORD, HIVE_URL) as client:
+		programs = list(client.get_programs())
+except HTTPError as exc:
+	print("Network/HTTP error:", exc)
+```
+
+Model parsing errors will raise normal Python exceptions — wrap calls where you need robust failure handling.
+
+## Common methods (short reference)
+
+- HiveClient(username, password, hive_url, **kwargs) — construct and authenticate client
+- get_programs(...)
+- get_program(program_id)
+- get_subjects(...)
+- get_modules(...)
+- get_exercises(...)
+- get_exercise(exercise_id)
+- get_exercise_fields(exercise)
+- get_assignments(...)
+- get_assignment(assignment_id)
+- get_assignment_responses(assignment)
+- get_users(...)
+- get_classes(...)
+
+Return values are typed model objects from `src/types` or generators of those objects.
+
+## Try it locally / Run tests
+
+Install dev dependencies and run tests with pytest:
 
 ```pwsh
 pip install -r requirements.txt
+pip install -e .
 pytest -q
 ```
 
-## Contributing
-- Open an issue or PR for changes
-- Keep changes focused and small; prefer adding tests for new behavior
+## Troubleshooting
 
-## Files of interest
-- `pyhive/client.py` — the high-level client class you will use
-- `src/types/` — typed model objects created from API responses
-- `tests/` — unit tests and examples of client usage
+- Authentication errors: verify username/password and the `hive_url` base. The client authenticates at construction.
+- SSL verification: pass `verify=False` to the client constructor for self-signed servers (not recommended for production).
 
-## License
-This repository does not include a formal license file. Add a LICENSE if you plan to publish or share this package.
+## Contributing & development
+
+- Tests live under `tests/` and show common usage patterns. Use them as examples.
+- The typed models are in `src/types` and the `HiveClient` convenience layer is in `pyhive/client.py`.
+
+If you plan to make changes, please add tests for new behavior and keep changes small and focused.

@@ -230,9 +230,11 @@ class User(HiveCoreItem):  # pylint: disable=too-many-instance-attributes
         return field_dict
 
     @classmethod
-    def from_dict(
-        cls, src_dict: Mapping[str, Any], hive_client: "HiveClient"
-    ) -> Self:  # pylint: disable=too-many-locals
+    def from_dict(  # pylint: disable=too-many-locals
+        cls,
+        src_dict: Mapping[str, Any],
+        hive_client: "HiveClient",
+    ) -> Self:
         """Deserialize a User instance from a mapping."""
         d = dict(src_dict)
         id = d.pop("id")
