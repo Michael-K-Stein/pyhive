@@ -6,30 +6,31 @@ typed model objects from :mod:`src.types` and generator-based list
 endpoints for memory-efficient iteration.
 """
 
-from typing import TYPE_CHECKING, Optional, TypeVar, Any, Sequence, Generator
-from functools import lru_cache
-import httpx
 import re
+from functools import lru_cache
+from typing import TYPE_CHECKING, Any, Generator, Optional, Sequence, TypeVar
 
-from .src.types.assignment_response import AssignmentResponse
+import httpx
+
 from .src.authenticated_hive_client import _AuthenticatedHiveClient
+from .src.types.assignment import Assignment
+from .src.types.assignment_response import AssignmentResponse
 from .src.types.class_ import Class
 from .src.types.enums.class_type_enum import ClassTypeEnum
 from .src.types.exercise import Exercise
 from .src.types.form_field import FormField
 from .src.types.module import Module
 from .src.types.program import Program
+from .src.types.queue import Queue
 from .src.types.subject import Subject
 from .src.types.user import User
-from .src.types.assignment import Assignment
-from .src.types.queue import Queue
 
 if TYPE_CHECKING:
+    from .src.types.assignment import AssignmentLike
     from .src.types.core_item import HiveCoreItem
+    from .src.types.exercise import ExerciseLike
     from .src.types.module import ModuleLike
     from .src.types.subject import SubjectLike
-    from .src.types.exercise import ExerciseLike
-    from .src.types.assignment import AssignmentLike
 
 CoreItemTypeT = TypeVar("CoreItemTypeT", bound="HiveCoreItem")
 
@@ -53,7 +54,7 @@ def resolve_item_or_id(
     return item_or_id.id if isinstance(item_or_id, HiveCoreItem) else item_or_id
 
 
-class HiveClient(_AuthenticatedHiveClient):
+class HiveClient(_AuthenticatedHiveClient):  # pylint: disable=too-many-public-methods
     """HTTP client for accessing Hive API.
 
     The client is used as a context manager and provides typed helpers for
@@ -402,7 +403,7 @@ class HiveClient(_AuthenticatedHiveClient):
         """
         raise NotImplementedError("get_user_me() is not implemented")
         # For some reason this endpoint does not return the same data as /users/{id}/
-        return User.from_dict(
+        return User.from_dict(  # pylint: disable=unreachable
             super().get("/api/core/management/users/me/"),
             hive_client=self,
         )

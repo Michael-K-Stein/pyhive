@@ -1,3 +1,5 @@
+"""Type definitions for PyHiveLMS."""
+
 from __future__ import annotations
 
 # Import the implementation from the `pyhive` package (implementation

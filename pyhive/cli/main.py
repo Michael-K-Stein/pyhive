@@ -1,3 +1,5 @@
+"""PyHive CLI entry point"""
+
 import typer
 from pyhive.src._generated_versions import SUPPORTED_API_VERSIONS
 
@@ -20,6 +22,7 @@ def versions2():
 
 
 def main():
+    """PyHive CLI main entry point"""
     app()
 
 
