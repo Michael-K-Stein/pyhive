@@ -7,8 +7,8 @@ from hatchling.builders.hooks.plugin.interface import BuildHookInterface
 
 
 class CustomBuildHook(BuildHookInterface):
-    def build(self, builder):
-        """Hatch build hook entry point"""
+    def initialize(self, version, build_data):
+        """Occurs immediately before each build."""
 
         pyproject = tomllib.loads(Path("pyproject.toml").read_text())
         versions = pyproject["tool"]["api_versions"]["supported"]
@@ -20,4 +20,4 @@ class CustomBuildHook(BuildHookInterface):
             "LATEST_API_VERSION = SUPPORTED_API_VERSIONS[-1]\n"
         )
 
-        print(f"✅ Generated {dst}")
+        print(f"+ Generated {dst}")
