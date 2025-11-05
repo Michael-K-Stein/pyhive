@@ -4,7 +4,7 @@ import datetime
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Self, TypeVar, cast
 
-from attrs import define as _attrs_define
+from attrs import define
 from dateutil.parser import isoparse
 from .common import UNSET, Unset
 from .enums.help_response_type_enum import HelpResponseTypeEnum
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 T = TypeVar("T", bound="HelpResponseSegelNested")
 
 
-@_attrs_define
+@define
 class HelpResponseSegelNested(HiveCoreItem):
     """Attributes:
     id (int):

@@ -6,7 +6,7 @@ Represents a lightweight notification object, optionally referencing a user and 
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Self, TypeVar, cast
 
-from attrs import define as _attrs_define
+from attrs import define
 from attrs import field
 from .common import UNSET, Unset
 from .core_item import HiveCoreItem
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 T = TypeVar("T", bound="NotificationNested")
 
 
-@_attrs_define
+@define
 class NotificationNested(HiveCoreItem):
     """A lightweight notification model.
 

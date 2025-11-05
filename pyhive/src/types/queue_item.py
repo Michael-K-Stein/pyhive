@@ -3,7 +3,7 @@
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Self, TypeVar, Union
 
-from attrs import define as _attrs_define
+from attrs import define
 from .common import UNSET, Unset
 from .enums.queue_rule_enum import QueueRuleEnum
 from .core_item import HiveCoreItem
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 T = TypeVar("T", bound="QueueItem")
 
 
-@_attrs_define
+@define
 class QueueItem(HiveCoreItem):
     """A single item in a learning queue, either referencing an exercise or another queue."""
 

@@ -108,9 +108,11 @@ class Module(HiveCoreItem):
 
     def get_exercise(self, exercise_name: str) -> Exercise:
         """Fetch a specific exercise by name within this module."""
-        exercises = self.hive_client.get_exercises(
-            parent_module__id=self.id,
-            exercise_name=exercise_name,
+        exercises = list(
+            self.hive_client.get_exercises(
+                parent_module__id=self.id,
+                exercise_name=exercise_name,
+            )
         )
 
         if len(exercises) == 0:
@@ -126,6 +128,14 @@ class Module(HiveCoreItem):
     def __iter__(self) -> Generator["Exercise", None, None]:
         """Allow iteration over this Module to yield its exercises."""
         yield from self.get_exercises()
+
+    def __hash__(self) -> int:
+        return hash(
+            (
+                self.id,
+                self.parent_subject_id,
+            )
+        )
 
 
 ModuleLike = TypeVar("ModuleLike", Module, int)

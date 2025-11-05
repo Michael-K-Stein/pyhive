@@ -8,7 +8,7 @@ from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Self, TypeVar, Union, cast
 
 from attr import field
-from attrs import define as _attrs_define
+from attrs import define
 from .common import UNSET, Unset
 from .enums.help_status_enum import HelpStatusEnum
 from .enums.help_type_enum import HelpTypeEnum
@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 T = TypeVar("T", bound="Help")
 
 
-@_attrs_define
+@define
 class Help(HiveCoreItem):
     """A student's help request.
 

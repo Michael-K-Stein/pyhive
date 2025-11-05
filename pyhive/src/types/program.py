@@ -7,7 +7,7 @@ sync status, and automatic handling flags.
 from collections.abc import Generator, Mapping
 from typing import TYPE_CHECKING, Any, Self, TypeVar
 
-from attrs import define as _attrs_define
+from attrs import define
 from attrs import field
 from .common import UNSET, Unset
 from .core_item import HiveCoreItem
@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 T = TypeVar("T", bound="Program")
 
 
-@_attrs_define
+@define
 class Program(HiveCoreItem):
     """Course Program entity.
 

@@ -3,7 +3,7 @@
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Self, TypeVar
 
-from attrs import define as _attrs_define
+from attrs import define
 from .core_item import HiveCoreItem
 
 if TYPE_CHECKING:
@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 T = TypeVar("T", bound="Tag")
 
 
-@_attrs_define
+@define
 class Tag(HiveCoreItem):
     """Attributes:
     id (int):

@@ -190,7 +190,7 @@ class _AuthenticatedHiveClient:
         This is decorated to handle retries and token refresh automatically.
         """
 
-        return self._session.get(endpoint, params=params)
+        return self._session.get(endpoint, params=params, headers={"Accept": "application/json"})
 
     @_with_retries_and_token_refresh
     def _post(self, endpoint: str, data: dict[Any, Any]) -> httpx.Response:

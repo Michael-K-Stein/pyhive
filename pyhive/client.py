@@ -9,6 +9,7 @@ endpoints for memory-efficient iteration.
 from typing import TYPE_CHECKING, Optional, TypeVar, Any, Sequence, Generator
 from functools import lru_cache
 import httpx
+import re
 
 from .src.types.assignment_response import AssignmentResponse
 from .src.authenticated_hive_client import _AuthenticatedHiveClient
@@ -35,7 +36,6 @@ CoreItemTypeT = TypeVar("CoreItemTypeT", bound="HiveCoreItem")
 ItemOrIdT = TypeVar("ItemOrIdT", bound="HiveCoreItem | int")
 
 
-@lru_cache(maxsize=2048)
 def resolve_item_or_id(
     item_or_id: ItemOrIdT | None,
 ) -> int | None:
@@ -394,6 +394,19 @@ class HiveClient(_AuthenticatedHiveClient):
             hive_client=self,
         )
 
+    def get_user_me(self) -> User:
+        """Return the currently authenticated user.
+
+        Returns:
+            A populated :class:`User` object.
+        """
+        raise NotImplementedError("get_user_me() is not implemented")
+        # For some reason this endpoint does not return the same data as /users/{id}/
+        return User.from_dict(
+            super().get("/api/core/management/users/me/"),
+            hive_client=self,
+        )
+
     def get_classes(
         self,
         *,
@@ -545,3 +558,12 @@ class HiveClient(_AuthenticatedHiveClient):
             item_type.from_dict(x, **extra_ctor_params, hive_client=self)
             for x in super().get(endpoint, params=query_params)
         )
+
+    def get_hive_version(self) -> str:
+        """Return the Hive server version string."""
+        data = super().get("/api/core/schema/")
+
+        version = data.get("info", {}).get("version", "")
+        if not isinstance(version, str) or not re.match(r"^\d+\.\d+\.\d+", version):
+            raise ValueError("Invalid version string received from server")
+        return version

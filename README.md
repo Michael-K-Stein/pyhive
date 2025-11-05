@@ -1,12 +1,15 @@
 ## PyHive — a minimal Hive API client for Python
 
-PyHive (package: `PyHiveLMS`) is a small, synchronous Python client for the Hive LMS API. It provides:
+PyHive (package: `PyHiveLMS`) is a small, synchronous Python client for the Hive API. It provides:
 
 - A simple `HiveClient` you use as a context manager to handle authentication and the HTTP session.
 - Generator-based list endpoints for memory-efficient iteration of large result sets.
-- Typed model objects (in `src/types`) for convenient access to API response fields.
 
-This README focuses on how to use the library as an application developer or data consumer of a Hive installation.
+### Supported Hive Versions
+<!-- SUPPORTED_API_VERSIONS_START -->
+- `5.1.2`
+- `6.2.0`
+<!-- SUPPORTED_API_VERSIONS_END -->
 
 ## Install
 

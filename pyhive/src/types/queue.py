@@ -8,7 +8,7 @@ serialization helpers and lazily-resolved relationship properties.
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Self, TypeVar, cast
 
-from attrs import define as _attrs_define
+from attrs import define
 from attrs import field
 from .common import UNSET, Unset
 from .core_item import HiveCoreItem
@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 T = TypeVar("T", bound="Queue")
 
 
-@_attrs_define
+@define
 class Queue(HiveCoreItem):
     """Queue model representing a student/program/module queue entry.
 

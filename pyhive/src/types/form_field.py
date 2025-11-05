@@ -7,7 +7,7 @@ including optional validation and visibility toggles.
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Self, TypeVar, cast
 
-from attrs import define as _attrs_define
+from attrs import define
 from attrs import field
 from .common import UNSET, Unset
 from .core_item import HiveCoreItem
@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 T = TypeVar("T", bound="FormField")
 
 
-@_attrs_define
+@define
 class FormField(HiveCoreItem):
     """Represents a single field in a dynamic form.
 
@@ -147,3 +147,6 @@ class FormField(HiveCoreItem):
         if not isinstance(value, FormField):
             return NotImplemented
         return self.order < value.order
+
+    def __hash__(self) -> int:
+        return hash((self.id,))

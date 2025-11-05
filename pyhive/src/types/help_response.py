@@ -8,7 +8,7 @@ import datetime
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Self, TypeVar, cast
 
-from attrs import define as _attrs_define
+from attrs import define
 from attrs import field
 from dateutil.parser import isoparse
 from .common import UNSET, Unset
@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 T = TypeVar("T", bound="HelpResponse")
 
 
-@_attrs_define
+@define
 class HelpResponse(HiveCoreItem):
     """A response to a help request.
 

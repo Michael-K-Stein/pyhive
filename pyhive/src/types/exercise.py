@@ -203,5 +203,14 @@ class Exercise(HiveCoreItem):
         """Allow iteration over this Exercise to yield its assignments."""
         yield from self.get_assignments()
 
+    def __hash__(self) -> int:
+        return hash(
+            (
+                self.id,
+                self.parent_module_id,
+                self.parent_subject_id,
+            )
+        )
+
 
 ExerciseLike = TypeVar("ExerciseLike", Exercise, int)

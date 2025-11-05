@@ -8,7 +8,7 @@ import datetime
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Self, TypeVar, cast
 
-from attrs import define as _attrs_define
+from attrs import define
 from dateutil.parser import isoparse
 from .common import UNSET, Unset
 from .core_item import HiveCoreItem
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 T = TypeVar("T", bound="Event")
 
 
-@_attrs_define
+@define
 class Event(HiveCoreItem):
     """Calendar event model.
 

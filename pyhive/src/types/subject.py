@@ -144,5 +144,13 @@ class Subject(HiveCoreItem):
         """Allow iteration over this Subject to yield its modules."""
         yield from self.get_modules()
 
+    def __hash__(self) -> int:
+        return hash(
+            (
+                self.id,
+                self.parent_program_id,
+            )
+        )
+
 
 SubjectLike = TypeVar("SubjectLike", Subject, int)
