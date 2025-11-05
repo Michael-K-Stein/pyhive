@@ -6,7 +6,12 @@ authors = [
     { name = "Michael K. Steinberg", email = "m.kuper.steinberg@gmail.com" },
 ]
 requires-python = ">=3.11.0"
-dependencies = ["httpx", "python-dateutil>=2.9.0", "attrs>=25.4.0"]
+dependencies = [
+    "httpx",
+    "python-dateutil>=2.9.0",
+    "attrs>=25.4.0",
+    "typer==0.20.0",
+]
 readme = { file = "README.md", content-type = "text/markdown" }
 
 [project.scripts]
