@@ -29,6 +29,9 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["pyhive"]
 
+[tool.hatch.build.hooks.custom]
+path = "scripts/generate_versions.py"
+
 [tool.mypy]
 plugins = []
 mypy_path = "$MYPY_CONFIG_FILE_DIR,$MYPY_CONFIG_FILE_DIR/stubs"
