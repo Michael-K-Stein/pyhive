@@ -127,7 +127,6 @@ Return values are typed model objects from `src/types` or generators of those ob
 Install dev dependencies and run tests with pytest:
 
 ```pwsh
-pip install -r requirements.txt
 pip install -e .
 pytest -q
 ```
