@@ -3,7 +3,7 @@
 Provides listing and retrieval of user records from the management API.
 """
 
-from typing import TYPE_CHECKING, Generator, Iterable, Optional, TypeVar
+from typing import TYPE_CHECKING, Generator, Iterable, Optional
 
 from ..client.utils import resolve_item_or_id
 from ..src.types.enums.clearance_enum import ClearanceEnum
