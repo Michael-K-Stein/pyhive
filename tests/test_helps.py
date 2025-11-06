@@ -58,9 +58,12 @@ def test_get_help_response_student_files():
             break
 
 
-def test_create_new_chat() -> None:
-    with HiveClient(**get_client_params(), proxy="http://127.0.0.1:8080") as client:
-        student = list(client.get_users(clearance__in=[ClearanceEnum.HANICH]))[0]
-        client.create_chat(
-            with_user=student, title=f"Test Chat with {student.first_name}"
-        )
+def test_create_and_delete_new_chat() -> None:
+    with HiveClient(**get_client_params()) as client:
+        student = list(client.get_students())[0]
+        CHAT_TITLE = f"Test Chat with {student.first_name}"
+        chat = client.create_chat(with_user=student, title=CHAT_TITLE)
+        try:
+            assert chat.title == CHAT_TITLE
+        finally:
+            client.delete_chat(chat)

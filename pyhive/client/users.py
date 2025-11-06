@@ -3,10 +3,17 @@
 Provides listing and retrieval of user records from the management API.
 """
 
-from typing import Generator, Optional, TypeVar
+from typing import TYPE_CHECKING, Generator, Iterable, Optional, TypeVar
 
+from ..client.utils import resolve_item_or_id
+from ..src.types.enums.clearance_enum import ClearanceEnum
 from ..src.types.user import User
 from .client_shared import ClientCoreMixin
+
+if TYPE_CHECKING:
+    from ..src.types.class_ import ClassLike
+    from ..src.types.program import ProgramLike
+    from ..src.types.user import UserLike
 
 
 class UserClientMixin(ClientCoreMixin):
@@ -64,3 +71,16 @@ class UserClientMixin(ClientCoreMixin):
         #     hive_client=self,
         # )
 
+    def get_students(
+        self,
+        *,
+        of_mentor: Optional["UserLike"] = None,
+        of_class: Optional["ClassLike"] = None,
+        of_program: Optional["ProgramLike"] = None,
+    ) -> Iterable[User]:
+        yield from self.get_users(
+            classes__id__in=[resolve_item_or_id(of_class)] if of_class else None,
+            clearance__in=[ClearanceEnum.HANICH],
+            mentor__id=resolve_item_or_id(of_mentor),
+            program__id__in=[resolve_item_or_id(of_program)] if of_program else None,
+        )

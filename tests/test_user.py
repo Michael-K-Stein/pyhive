@@ -12,3 +12,4 @@ def test_user_me():
         me = client.get_user_me()
         assert isinstance(me, User)
         assert me.id == client.get_user(me.id).id
+

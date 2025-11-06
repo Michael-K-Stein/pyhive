@@ -112,3 +112,5 @@ class Class(HiveCoreItem):
         if not isinstance(value, Class):
             return False
         return self.id == value.id and self.program_id == value.program_id
+
+ClassLike = TypeVar("ClassLike", Class, int)
