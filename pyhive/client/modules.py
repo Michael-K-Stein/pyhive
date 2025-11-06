@@ -7,11 +7,15 @@ as a mixin on the main HiveClient only.
 
 from typing import TYPE_CHECKING, Iterable, Optional
 
+
+from pyhive.client.client_shared import resolve_item_or_id
 from ..src.types.module import Module
 from .client_shared import ClientCoreMixin, resolve_item_or_id
 
 if TYPE_CHECKING:
     from ..src.types.subject import SubjectLike
+    from ..src.types.program import ProgramLike
+
 
 class ModuleClientMixin(ClientCoreMixin):
     """
@@ -32,12 +36,30 @@ class ModuleClientMixin(ClientCoreMixin):
         parent_subject__parent_program__id__in: Optional[list[int]] = None,
         # Non built-in filters
         parent_subject: Optional["SubjectLike"] = None,
+        parent_program: Optional["ProgramLike"] = None,
         module_name: Optional[str] = None,
     ) -> Iterable[Module]:
         """Yield ``Module`` objects, supporting filtering by subject and program."""
         from ..client import HiveClient
 
         assert isinstance(self, HiveClient), "self must be an instance of HiveClient"
+
+        assert (
+            not (
+                parent_subject__parent_program__id__in is not None
+                and parent_program is not None
+            )
+        ) or (
+            len(parent_subject__parent_program__id__in) == 1
+            and parent_subject__parent_program__id__in[0]
+            == resolve_item_or_id(parent_program)
+        ), "parent_subject__parent_program__id__in and parent_program filters conflict!"
+
+        if parent_program:
+            parent_subject__parent_program__id__in = [
+                resolve_item_or_id(parent_program)
+            ]
+
         modules: Iterable[Module] = self._get_core_items(
             "/api/core/course/modules/",
             Module,

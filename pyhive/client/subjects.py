@@ -13,6 +13,7 @@ from .client_shared import ClientCoreMixin, resolve_item_or_id
 if TYPE_CHECKING:
     from ..src.types.program import ProgramLike
 
+
 class SubjectClientMixin(ClientCoreMixin):
     """
     Mixin class adding subject-related API methods to the HiveClient.

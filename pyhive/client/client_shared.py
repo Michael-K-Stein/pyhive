@@ -13,11 +13,14 @@ from ..src.types.core_item import HiveCoreItem
 
 CoreItemTypeT = TypeVar("CoreItemTypeT", bound="HiveCoreItem")
 
+
 @overload
 def resolve_item_or_id(item_or_id: None) -> None: ...
 
+
 @overload
 def resolve_item_or_id(item_or_id: HiveCoreItem | int) -> int: ...
+
 
 def resolve_item_or_id(
     item_or_id: Union[HiveCoreItem, int, None],
@@ -36,6 +39,7 @@ def resolve_item_or_id(
     return (
         cast(int, item_or_id.id) if hasattr(item_or_id, "id") else cast(int, item_or_id)
     )
+
 
 class ClientCoreMixin(AuthenticatedHiveClient):
     """Common mixin base that exposes ``_get_core_items`` for list endpoints.
@@ -62,7 +66,12 @@ class ClientCoreMixin(AuthenticatedHiveClient):
         query_params = httpx.QueryParams()
         for name, value in kwargs.items():
             if value is not None:
-                query_params = query_params.set(name, value)
+                if isinstance(value, list):
+                    query_params = query_params.set(
+                        name, ",".join(str(x) for x in value)
+                    )
+                else:
+                    query_params = query_params.set(name, value)
         return (
             item_type.from_dict(x, **extra_ctor_params, hive_client=self)
             for x in self.get(endpoint, params=query_params)
