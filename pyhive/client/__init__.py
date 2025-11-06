@@ -2,6 +2,8 @@
 
 from types import TracebackType
 
+from ..src.api_versions import (LATEST_API_VERSION, MIN_API_VERSION,
+                                SUPPORTED_API_VERSIONS)
 from .assignment_responses import AssignmentResponsesClientMixin
 from .assignments import AssignmentClientMixin
 from .classes import ClassesClientMixin
@@ -13,11 +15,6 @@ from .queues import QueuesClientMixin
 from .subjects import SubjectClientMixin
 from .users import UserClientMixin
 from .version import VersionClientMixin
-from ..src.api_versions import (
-    SUPPORTED_API_VERSIONS,
-    LATEST_API_VERSION,
-    MIN_API_VERSION,
-)
 
 
 class HiveClient(  # pylint: disable=too-many-ancestors,abstract-method

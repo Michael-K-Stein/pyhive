@@ -132,7 +132,6 @@ def test_get_assignments():
 
 # TODO: Remove xfail once assignments are seeded in the test dataset
 @pytest.mark.xfail(strict=False, reason="No assignments available yet in fixtures")
-
 def test_get_assignment_by_id():
     with HiveClient(**get_client_params()) as client:
         assignments = list(client.get_assignments())
@@ -147,7 +146,6 @@ def test_get_assignment_by_id():
 
 # TODO: Remove xfail once assignments are seeded in the test dataset
 @pytest.mark.xfail(strict=False, reason="No assignments available yet in fixtures")
-
 def test_get_assignment_responses():
     with HiveClient(**get_client_params()) as client:
         assignments = list(client.get_assignments())
@@ -160,7 +158,6 @@ def test_get_assignment_responses():
 
 # TODO: Remove xfail once assignments are seeded in the test dataset
 @pytest.mark.xfail(strict=False, reason="No assignments available yet in fixtures")
-
 def test_get_assignment_response_by_id():
     with HiveClient(**get_client_params()) as client:
         assignments = list(client.get_assignments())
@@ -177,84 +174,71 @@ def test_get_assignment_response_by_id():
 def test_assignments_conflict_module_id_and_object_mismatch():
     with HiveClient(**get_client_params()) as client:
         modules = list(client.get_modules())
-        assert len(modules) > 0, "No modules available for assignment conflict tests."
+        assert modules, "No modules available for assignment conflict tests."
         module = modules[0]
-        try:
+
+        with pytest.raises(AssertionError):
             list(
                 client.get_assignments(
-                    parent_module=module, exercise__parent_module__id=module.id + 1
+                    parent_module=module,
+                    exercise__parent_module__id=module.id + 1,
                 )
             )
-            assert False, "Expected assertion error for conflicting module filters"
-        except AssertionError:
-            pass
 
 
 def test_assignments_conflict_subject_id_and_object_mismatch():
     with HiveClient(**get_client_params()) as client:
         subjects = list(client.get_subjects())
-        assert len(subjects) > 0, "No subjects available for assignment conflict tests."
+        assert subjects, "No subjects available for assignment conflict tests."
         subject = subjects[0]
-        try:
+
+        with pytest.raises(AssertionError):
             list(
                 client.get_assignments(
                     parent_subject=subject,
                     exercise__parent_module__parent_subject__id=subject.id + 1,
                 )
             )
-            assert False, "Expected assertion error for conflicting subject filters"
-        except AssertionError:
-            pass
 
 
 def test_assignments_conflict_user_classes_id_and_id_in():
     with HiveClient(**get_client_params()) as client:
-        try:
+        with pytest.raises(AssertionError):
             list(
                 client.get_assignments(
                     user__classes__id=1,
                     user__classes__id__in=[1, 2],
                 )
             )
-            assert False, "Expected assertion error for user__classes filters"
-        except AssertionError:
-            pass
 
 
 def test_assignments_conflict_user_id_in_and_for_user_mismatch():
     with HiveClient(**get_client_params()) as client:
         users = list(client.get_users())
-        assert len(users) > 0, "No users available for assignment conflict tests."
+        assert users, "No users available for assignment conflict tests."
         user = users[0]
-        try:
+
+        with pytest.raises(AssertionError):
             list(
                 client.get_assignments(
                     user__id__in=[user.id + 1],
                     for_user=user,
                 )
             )
-            assert False, "Expected assertion error for user id vs for_user filters"
-        except AssertionError:
-            pass
 
 
-def test_assignments_conflict_mentor_filters_any_two():
+@pytest.mark.parametrize(
+    "kwargs",
+    [
+        {"user__mentor__id": 1, "user__mentor__id__in": [1]},
+        {"user__mentor__id": 1, "for_mentees_of": 1},
+        {"user__mentor__id__in": [1], "for_mentees_of": 1},
+    ],
+)
+def test_assignments_conflict_mentor_filters_any_two(kwargs):
     with HiveClient(**get_client_params()) as client:
-        try:
-            list(client.get_assignments(user__mentor__id=1, user__mentor__id__in=[1]))
-            assert False, "Expected assertion error for mentor filters (id & id__in)"
-        except AssertionError:
-            pass
-        try:
-            list(client.get_assignments(user__mentor__id=1, for_mentees_of=1))
-            assert False, "Expected assertion error for mentor filters (id & for_mentees_of)"
-        except AssertionError:
-            pass
-        try:
-            list(client.get_assignments(user__mentor__id__in=[1], for_mentees_of=1))
-            assert False, "Expected assertion error for mentor filters (id__in & for_mentees_of)"
-        except AssertionError:
-            pass
+        with pytest.raises(AssertionError):
+            list(client.get_assignments(**kwargs))
 
 
 def test_get_hive_version():
@@ -263,3 +247,24 @@ def test_get_hive_version():
         assert isinstance(version, str)
         assert len(version) > 0
         assert re.match(r"^\d+\.\d+\.\d+", version)
+
+
+def test_invalid_hive_version_raises(monkeypatch):
+    from pyhive.src.api_versions import MIN_API_VERSION, LATEST_API_VERSION
+
+    invalid = "0.0.0-unsupported"
+    monkeypatch.setattr(HiveClient, "get_hive_version", lambda self: invalid)
+    with pytest.raises(RuntimeError) as ei:
+        # Constructing triggers version check in __init__
+        HiveClient(**get_client_params())
+    msg = str(ei.value)
+    assert f"Unsupported Hive API version '{invalid}'" in msg
+    assert f"{MIN_API_VERSION} .. {LATEST_API_VERSION}" in msg
+
+
+def test_skip_version_check(monkeypatch):
+    invalid = "0.0.0-unsupported"
+    monkeypatch.setattr(HiveClient, "get_hive_version", lambda self: invalid)
+    # Should not raise when skip_version_check=True
+    with HiveClient(**get_client_params(), skip_version_check=True) as client:
+        assert client is not None
