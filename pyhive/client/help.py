@@ -3,10 +3,14 @@
 Provides listing and retrieval of Help request records via the Hive API.
 """
 
-from typing import Any, Iterable, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Iterable, Optional
 
+from ..src.types.enums.help_type_enum import HelpTypeEnum
+from ..src.types.enums.visibility_enum import VisibilityEnum
+from ..src.types.exercise import ExerciseLike
 from ..src.types.help_ import Help
 from ..src.types.help_response import HelpResponse
+from ..src.types.user import UserLike
 from .client_shared import ClientCoreMixin
 from .utils import resolve_item_or_id
 
@@ -129,3 +133,56 @@ class HelpClientMixin(ClientCoreMixin):
         response.raise_for_status()
         data = response.json()
         return data if isinstance(data, list) else []
+
+    def create_help_request(
+        self,
+        user: "UserLike",
+        title: str,
+        type_: HelpTypeEnum,
+        exercise: "ExerciseLike",
+        visibility: VisibilityEnum,
+    ) -> Help:
+        from ..client import HiveClient
+
+        assert isinstance(self, HiveClient), "self must be an instance of HiveClient"
+        return Help.from_dict(
+            self.post(
+                "/api/core/help/",
+                {
+                    "user": resolve_item_or_id(user),
+                    "title": title,
+                    "help_type": type_.value,
+                    "exercise_id": resolve_item_or_id(exercise),
+                    "visibility": visibility.value,
+                },
+            ),
+            hive_client=self,
+        )
+
+    def create_chat(
+        self,
+        *,
+        with_user: "UserLike",
+        title: str,
+        about_exercise: Optional["ExerciseLike"] = None,
+        visibility: VisibilityEnum = VisibilityEnum.AUTHOR_ONLY,
+    ) -> Help:
+        from ..client import HiveClient
+
+        assert isinstance(self, HiveClient), "self must be an instance of HiveClient"
+        return Help.from_dict(
+            self.post(
+                "/api/core/help/",
+                {
+                    "user": resolve_item_or_id(with_user),
+                    "title": title,
+                    "help_type": HelpTypeEnum.CHAT,
+                    "exercise_id": resolve_item_or_id(about_exercise),
+                    "visibility": visibility.value,
+                },
+            ),
+            hive_client=self,
+        )
+
+    # def delete_chat(self) -> None:
+    #    self.delete()

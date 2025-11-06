@@ -1,4 +1,7 @@
 from pyhive.client import HiveClient
+from pyhive.src.types.enums.clearance_enum import ClearanceEnum
+from pyhive.src.types.enums.help_type_enum import HelpTypeEnum
+from pyhive.src.types.enums.visibility_enum import VisibilityEnum
 from pyhive.src.types.help_ import Help
 from pyhive.src.types.help_response import HelpResponse
 from tests.common import get_client_params
@@ -53,3 +56,11 @@ def test_get_help_response_student_files():
             if files:
                 assert isinstance(files[0], dict)
             break
+
+
+def test_create_new_chat() -> None:
+    with HiveClient(**get_client_params(), proxy="http://127.0.0.1:8080") as client:
+        student = list(client.get_users(clearance__in=[ClearanceEnum.HANICH]))[0]
+        client.create_chat(
+            with_user=student, title=f"Test Chat with {student.first_name}"
+        )

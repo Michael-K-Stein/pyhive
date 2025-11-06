@@ -8,9 +8,12 @@ HTTP calls and an internal ``_AuthenticatedHiveClient`` which wraps an
 import functools
 import time
 from collections.abc import Callable
-from typing import Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Optional, TypeVar, cast
 
 import httpx
+
+if TYPE_CHECKING:
+    from httpx._types import ProxyTypes
 
 F = TypeVar("F", bound=Callable[..., httpx.Response])
 
@@ -92,6 +95,7 @@ class AuthenticatedHiveClient:
         timeout: httpx.Timeout | float | None = None,
         headers: dict[str, str] | None = None,
         verify: bool | str | None = None,
+        proxy: Optional["ProxyTypes"],
         **kwargs: Any,
     ) -> None:
         """Create an authenticated client.
@@ -112,6 +116,8 @@ class AuthenticatedHiveClient:
             client_kwargs["headers"] = headers
         if verify is not None:
             client_kwargs["verify"] = verify
+        if proxy is not None:
+            client_kwargs["proxy"] = proxy
 
         # Include any other httpx.Client kwargs passed in **kwargs
         client_kwargs.update(kwargs)
@@ -217,3 +223,8 @@ class AuthenticatedHiveClient:
         """
 
         return self._post(endpoint, data).json()
+
+    def delete(self, endpoint: str, force: bool = False) -> None:
+        response = self._delete(endpoint)
+        if response.status_code != httpx.codes.NO_CONTENT:  # 204 No response body
+            raise RuntimeError("Failed to delete!")

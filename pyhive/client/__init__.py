@@ -1,24 +1,29 @@
 """High-level Hive API client aggregator."""
 
 from types import TracebackType
+from typing import TYPE_CHECKING, Optional, Union
 
+if TYPE_CHECKING:
+    from httpx._types import ProxyTypes
+    from httpx import Timeout
+
+from ..src.api_versions import (
+    LATEST_API_VERSION,
+    MIN_API_VERSION,
+    SUPPORTED_API_VERSIONS,
+)
 from .assignment_responses import AssignmentResponsesClientMixin
 from .assignments import AssignmentClientMixin
 from .classes import ClassesClientMixin
 from .exercises import ExerciseClientMixin
 from .fields import FieldsClientMixin
+from .help import HelpClientMixin
 from .modules import ModuleClientMixin
 from .programs import ProgramClientMixin
 from .queues import QueuesClientMixin
 from .subjects import SubjectClientMixin
 from .users import UserClientMixin
 from .version import VersionClientMixin
-from .help import HelpClientMixin
-from ..src.api_versions import (
-    SUPPORTED_API_VERSIONS,
-    LATEST_API_VERSION,
-    MIN_API_VERSION,
-)
 
 
 class HiveClient(  # pylint: disable=too-many-ancestors,abstract-method
@@ -37,8 +42,24 @@ class HiveClient(  # pylint: disable=too-many-ancestors,abstract-method
 ):
     """Aggregated HTTP client for accessing Hive API resources."""
 
-    def __init__(self, *args, skip_version_check: bool = False, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(
+        self,
+        *args,
+        skip_version_check: bool = False,
+        timeout: Optional[Union["Timeout", float]] = None,
+        headers: Optional[dict[str, str]] = None,
+        verify: Optional[Union[bool, str]] = None,
+        proxy: Optional["ProxyTypes"] = None,
+        **kwargs,
+    ):
+        super().__init__(
+            *args,
+            timeout=timeout,
+            headers=headers,
+            verify=verify,
+            proxy=proxy,
+            **kwargs,
+        )
         if not skip_version_check:
             self._api_version_check()
 

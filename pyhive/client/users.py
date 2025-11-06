@@ -64,5 +64,3 @@ class UserClientMixin(ClientCoreMixin):
         #     hive_client=self,
         # )
 
-
-UserLike = TypeVar("UserLike", User, int)
