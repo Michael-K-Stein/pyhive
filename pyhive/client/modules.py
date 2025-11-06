@@ -7,15 +7,13 @@ as a mixin on the main HiveClient only.
 
 from typing import TYPE_CHECKING, Iterable, Optional
 
-
-from pyhive.client.client_shared import resolve_item_or_id
 from ..src.types.module import Module
-from .client_shared import ClientCoreMixin, resolve_item_or_id
+from .client_shared import ClientCoreMixin
+from .utils import resolve_item_or_id
 
 if TYPE_CHECKING:
-    from ..src.types.subject import SubjectLike
     from ..src.types.program import ProgramLike
-
+    from ..src.types.subject import SubjectLike
 
 class ModuleClientMixin(ClientCoreMixin):
     """

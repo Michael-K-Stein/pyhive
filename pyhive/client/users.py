@@ -3,7 +3,7 @@
 Provides listing and retrieval of user records from the management API.
 """
 
-from typing import Generator, Optional
+from typing import Generator, Optional, TypeVar
 
 from ..src.types.user import User
 from .client_shared import ClientCoreMixin
@@ -63,3 +63,6 @@ class UserClientMixin(ClientCoreMixin):
         #     self.get("/api/core/management/users/me/"),
         #     hive_client=self,
         # )
+
+
+UserLike = TypeVar("UserLike", User, int)

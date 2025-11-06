@@ -8,7 +8,8 @@ Intended for mixing into the main HiveClient only.
 from typing import TYPE_CHECKING, Iterable, Optional
 
 from ..src.types.exercise import Exercise
-from .client_shared import ClientCoreMixin, resolve_item_or_id
+from .client_shared import ClientCoreMixin
+from .utils import resolve_item_or_id
 
 if TYPE_CHECKING:
     from ..src.types.module import ModuleLike

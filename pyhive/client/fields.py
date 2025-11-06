@@ -6,7 +6,8 @@ Provides methods to list and retrieve form fields for a specific exercise.
 from typing import Generator
 
 from ..src.types.form_field import FormField
-from .client_shared import resolve_item_or_id, ClientCoreMixin
+from .client_shared import ClientCoreMixin
+from .utils import resolve_item_or_id
 
 
 class FieldsClientMixin(ClientCoreMixin):

@@ -5,9 +5,9 @@ Provides methods for listing and retrieving AssignmentResponse records for a giv
 through the Hive API. Intended only for use as a mixin on HiveClient.
 """
 
-
 from ..src.types.assignment_response import AssignmentResponse
-from .client_shared import resolve_item_or_id, ClientCoreMixin
+from .client_shared import ClientCoreMixin
+from .utils import resolve_item_or_id
 
 class AssignmentResponsesClientMixin(ClientCoreMixin):
     """
