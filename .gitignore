@@ -213,5 +213,6 @@ __marimo__/
 # Old files which will be removed soon
 ___*
 demo.py
+api_yamls/
 
 .vscode/PythonImportHelper-v2-Completion.json

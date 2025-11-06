@@ -26,23 +26,50 @@ class ClientCoreMixin(AuthenticatedHiveClient):
         extra_ctor_params: Optional[dict[str, Any]] = None,
         **kwargs,
     ) -> Generator[CoreItemTypeT, None, None]:
-        """Yield typed items from a list endpoint with optional query parameters."""
+        """Yield typed items from a list endpoint with optional query parameters.
+
+        Handles both non-paginated list responses and DRF-style paginated
+        responses of the form:
+
+            {"count": N, "next": url | null, "previous": url | null, "results": [...]}
+        """
         from ..client import HiveClient
 
         assert isinstance(self, HiveClient), "self must be an instance of HiveClient"
 
         if extra_ctor_params is None:
             extra_ctor_params = {}
+
+        # Build query params, converting lists to comma-separated values
         query_params = httpx.QueryParams()
         for name, value in kwargs.items():
-            if value is not None:
-                if isinstance(value, list):
-                    query_params = query_params.set(
-                        name, ",".join(str(x) for x in value)
-                    )
-                else:
-                    query_params = query_params.set(name, value)
-        return (
-            item_type.from_dict(x, **extra_ctor_params, hive_client=self)
-            for x in self.get(endpoint, params=query_params)
-        )
+            if value is None:
+                continue
+            if isinstance(value, list):
+                query_params = query_params.set(name, ",".join(str(x) for x in value))
+            else:
+                query_params = query_params.set(name, value)
+
+        data = self.get(endpoint, params=query_params)
+
+        # Non-paginated: assume the payload is the items list (or empty)
+        if not (isinstance(data, dict) and "results" in data):
+            items = data if isinstance(data, list) else []
+            return (
+                item_type.from_dict(x, **extra_ctor_params, hive_client=self)
+                for x in items
+            )
+
+        # Paginated: follow "next" links and yield all pages
+        def _paginate() -> Generator[CoreItemTypeT, None, None]:
+            page = data
+            while True:
+                items = page.get("results", [])
+                for x in items:
+                    yield item_type.from_dict(x, **extra_ctor_params, hive_client=self)
+                next_url = page.get("next")
+                if not next_url:
+                    break
+                page = self.get(next_url)
+
+        return _paginate()

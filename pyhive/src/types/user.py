@@ -382,9 +382,7 @@ class User(HiveCoreItem):  # pylint: disable=too-many-instance-attributes
     def mentees(self) -> list["User"]:
         """The mentees of this user."""
         if self._mentees is None:
-            self._mentees = list(
-                self.hive_client.get_users(user__id__in=self.mentee_ids)
-            )
+            self._mentees = list(self.hive_client.get_users(id__in=self.mentee_ids))
         return self._mentees
 
     @property
@@ -448,7 +446,7 @@ class User(HiveCoreItem):  # pylint: disable=too-many-instance-attributes
 
     def get_assignments(self) -> Iterable["Assignment"]:
         """Get all assignments for this user."""
-        return self.hive_client.get_assignments(user__id__in=[self.id])
+        return self.hive_client.get_assignments(for_user=self)
 
 
 UserLike = TypeVar("UserLike", User, int)
