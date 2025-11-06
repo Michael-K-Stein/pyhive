@@ -8,8 +8,8 @@ serialization helpers and lazily-resolved relationship properties.
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Self, TypeVar, cast
 
-from attrs import define
-from attrs import field
+from attrs import define, field
+
 from .common import UNSET, Unset
 from .core_item import HiveCoreItem
 

@@ -9,18 +9,19 @@ from typing import TYPE_CHECKING, Any, Self, TypeVar, Union, cast
 
 from attr import field
 from attrs import define
+
 from .common import UNSET, Unset
+from .core_item import HiveCoreItem
 from .enums.help_status_enum import HelpStatusEnum
 from .enums.help_type_enum import HelpTypeEnum
 from .enums.visibility_enum import VisibilityEnum
-from .core_item import HiveCoreItem
 
 if TYPE_CHECKING:
     from ...client import HiveClient
-    from .user import User
     from .exercise import Exercise
     from .help_response_segel_nested import HelpResponseSegelNested
     from .notification_nested import NotificationNested
+    from .user import User
 
 
 T = TypeVar("T", bound="Help")
@@ -86,9 +87,8 @@ class Help(HiveCoreItem):
 
         # Import locally to avoid circular imports at module import time.
         # Keep the import local but silence pylint's import-outside-toplevel.
-        from .exercise import (  # pylint: disable=import-outside-toplevel
-            Exercise,
-        )
+        from .exercise import \
+            Exercise  # pylint: disable=import-outside-toplevel
 
         # Keep the attribute name `id` as generated; silence redefined-builtin warning.
         id = self.id  # pylint: disable=redefined-builtin
@@ -168,12 +168,10 @@ class Help(HiveCoreItem):
         """
 
         # Local imports to avoid runtime import cycles; keep but silence pylint.
-        from .help_response_segel_nested import (  # pylint: disable=import-outside-toplevel
-            HelpResponseSegelNested,
-        )
-        from .notification_nested import (  # pylint: disable=import-outside-toplevel
-            NotificationNested,
-        )
+        from .help_response_segel_nested import \
+            HelpResponseSegelNested  # pylint: disable=import-outside-toplevel
+        from .notification_nested import \
+            NotificationNested  # pylint: disable=import-outside-toplevel
 
         d = dict(src_dict)
         id = d.pop("id")

@@ -4,6 +4,7 @@ from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Self, TypeVar
 
 from attrs import define
+
 from .core_item import HiveCoreItem
 
 if TYPE_CHECKING:

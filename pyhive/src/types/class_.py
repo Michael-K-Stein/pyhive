@@ -7,6 +7,7 @@ from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Self, TypeVar, cast
 
 from attrs import define, field
+
 from .common import UNSET, Unset
 from .core_item import HiveCoreItem
 from .enums.class_type_enum import ClassTypeEnum

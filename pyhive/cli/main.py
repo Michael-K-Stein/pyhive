@@ -1,6 +1,7 @@
 """PyHive CLI entry point"""
 
 import typer
+
 from pyhive.src._generated_versions import SUPPORTED_API_VERSIONS
 
 app = typer.Typer(help="PyHive CLI")

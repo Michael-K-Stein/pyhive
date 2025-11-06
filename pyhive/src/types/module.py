@@ -5,10 +5,10 @@ lazy loading of parent subject, and retrieval of exercises.
 """
 
 from collections.abc import Generator, Mapping
-from typing import TYPE_CHECKING, Any, Self, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Iterable, Self, TypeVar, cast
 
-from attrs import define
-from attrs import field
+from attrs import define, field
+
 from .enums.sync_status_enum import SyncStatusEnum
 from .exercise import Exercise
 from .program import HiveCoreItem
@@ -102,7 +102,7 @@ class Module(HiveCoreItem):
             return NotImplemented
         return self.order < value.order
 
-    def get_exercises(self) -> Generator[Exercise]:
+    def get_exercises(self) -> Iterable[Exercise]:
         """Fetch all exercises within this module."""
         return self.hive_client.get_exercises(parent_module__id=self.id)
 

@@ -5,8 +5,8 @@ from typing import TYPE_CHECKING, Any, Self, TypeVar
 
 from attrs import define
 
-from .core_item import HiveCoreItem
 from .common import UNSET, Unset
+from .core_item import HiveCoreItem
 
 if TYPE_CHECKING:
     from ...client import HiveClient

@@ -2,10 +2,11 @@
 
 import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Self, TypeVar, cast, Generator
+from typing import TYPE_CHECKING, Any, Generator, Self, TypeVar, cast
 
 from attrs import define, field
 from dateutil.parser import isoparse
+
 from .common import UNSET, Unset
 from .core_item import HiveCoreItem
 from .enums.assignment_status_enum import AssignmentStatusEnum
@@ -13,9 +14,9 @@ from .notification_nested import NotificationNested
 
 if TYPE_CHECKING:
     from ...client import HiveClient
+    from .assignment_response import AssignmentResponse
     from .exercise import Exercise
     from .user import User
-    from .assignment_response import AssignmentResponse
 
 T = TypeVar("T", bound="Assignment")
 

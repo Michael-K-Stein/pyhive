@@ -2,10 +2,11 @@
 
 import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Self, TypeVar, cast, Generator
+from typing import TYPE_CHECKING, Any, Generator, Self, TypeVar, cast
 
-from attrs import field, define
+from attrs import define, field
 from dateutil.parser import isoparse
+
 from .common import UNSET, Unset
 from .core_item import HiveCoreItem
 from .enums.clearance_enum import ClearanceEnum

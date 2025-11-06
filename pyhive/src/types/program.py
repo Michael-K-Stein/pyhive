@@ -5,10 +5,10 @@ sync status, and automatic handling flags.
 """
 
 from collections.abc import Generator, Mapping
-from typing import TYPE_CHECKING, Any, Self, TypeVar
+from typing import TYPE_CHECKING, Any, Iterable, Self, TypeVar
 
-from attrs import define
-from attrs import field
+from attrs import define, field
+
 from .common import UNSET, Unset
 from .core_item import HiveCoreItem
 from .enums.sync_status_enum import SyncStatusEnum
@@ -87,7 +87,7 @@ class Program(HiveCoreItem):
             self._default_class = self.hive_client.get_class(self.default_class_id)
         return self._default_class
 
-    def get_subjects(self) -> Generator[Subject]:
+    def get_subjects(self) -> Iterable[Subject]:
         """Returns all subjects belonging to this program."""
         return self.hive_client.get_subjects(parent_program__id__in=[self.id])
 
@@ -178,3 +178,6 @@ class Program(HiveCoreItem):
     def __iter__(self) -> Generator["Subject", None, None]:
         """Allow iteration over this Program to yield its subjects."""
         yield from self.get_subjects()
+
+
+ProgramLike = TypeVar("ProgramLike", Program, int)

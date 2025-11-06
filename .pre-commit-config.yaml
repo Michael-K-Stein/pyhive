@@ -3,7 +3,11 @@ repos:
     hooks:
       - id: pylint
         name: pylint
-        entry: pylint ./pyhive/ --ignore-patterns="_generated_.*\.py"
+        entry: pylint
         language: system
         types: [python]
         require_serial: true
+        args:
+          - ./pyhive/
+          - --ignore-patterns=_generated_.*\.py
+        exclude: ^tests/

@@ -4,9 +4,10 @@ from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Self, TypeVar, Union
 
 from attrs import define
+
 from .common import UNSET, Unset
-from .enums.queue_rule_enum import QueueRuleEnum
 from .core_item import HiveCoreItem
+from .enums.queue_rule_enum import QueueRuleEnum
 
 if TYPE_CHECKING:
     from ...client import HiveClient
@@ -30,9 +31,8 @@ class QueueItem(HiveCoreItem):
     continue_on_redo: Unset | bool = UNSET
 
     def to_dict(self) -> dict[str, Any]:
-        from .exercise import (  # pylint: disable=import-outside-toplevel
-            Exercise,
-        )
+        from .exercise import \
+            Exercise  # pylint: disable=import-outside-toplevel
         from .queue import Queue  # pylint: disable=import-outside-toplevel
 
         return {
@@ -59,9 +59,8 @@ class QueueItem(HiveCoreItem):
 
     @classmethod
     def from_dict(cls, src_dict: Mapping[str, Any], hive_client: "HiveClient") -> Self:
-        from .exercise import (  # pylint: disable=import-outside-toplevel
-            Exercise,
-        )
+        from .exercise import \
+            Exercise  # pylint: disable=import-outside-toplevel
         from .queue import Queue  # pylint: disable=import-outside-toplevel
 
         d = dict(src_dict)

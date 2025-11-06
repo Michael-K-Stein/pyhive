@@ -1,8 +1,9 @@
 """Model for exercises in course modules."""
 
-from typing import Generator, TYPE_CHECKING, Any, Self, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Generator, Self, TypeVar, cast
 
 from attrs import define, field
+
 from .common import UNSET, Unset
 from .core_item import HiveCoreItem
 from .enums.exercise_patbas_enum import PatbasEnum
@@ -11,9 +12,9 @@ from .enums.sync_status_enum import SyncStatusEnum
 
 if TYPE_CHECKING:
     from ...client import HiveClient
+    from .assignment import Assignment
     from .module import Module
     from .subject import Subject
-    from .assignment import Assignment
 
 T = TypeVar("T", bound="Exercise")
 

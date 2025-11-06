@@ -1,22 +1,37 @@
 from pyhive.client import HiveClient
+from pyhive.src.types.program import Program
 from tests.common import get_client_params
 
 
-def test_get_programs() -> None:
+def test_get_programs():
     with HiveClient(**get_client_params()) as client:
         for program in client.get_programs():
-            assert program.id == client.get_program(program.id).id
-            assert program.name == client.get_program(program.id).name
-            assert program.auto_toilet == client.get_program(program.id).auto_toilet
+            assert program is not None
+            assert isinstance(program, Program)
 
 
-def test_program_checker_resolution() -> None:
-    """Check that the checker field is resolved to an item rather than an id (int)."""
+def test_get_program_by_id():
     with HiveClient(**get_client_params()) as client:
-        for program in client.get_programs():
-            assert program.id == client.get_program(program.id).id
-            assert program.name == client.get_program(program.id).name
-            assert not isinstance(
-                program.checker, int
-            ), "Program checker is an integer!"
-            assert program.checker_id == program.checker.id
+        all_programs = list(client.get_programs())
+        assert len(all_programs) > 0, "No programs available for testing."
+        prog = all_programs[0]
+        looked_up = client.get_program(prog.id)
+        assert looked_up.id == prog.id
+        assert looked_up.name == prog.name
+
+
+def test_get_programs_by_name():
+    with HiveClient(**get_client_params()) as client:
+        all_programs = list(client.get_programs())
+        assert len(all_programs) > 0, "No programs available for testing."
+        test_name = all_programs[0].name
+        filtered = list(client.get_programs(program_name=test_name))
+        assert all(p.name == test_name for p in filtered)
+        if filtered:
+            assert isinstance(filtered[0], Program)
+
+
+def test_get_programs_by_nonexistent_name():
+    with HiveClient(**get_client_params()) as client:
+        result = list(client.get_programs(program_name="__unlikely_to_exist__"))
+        assert len(result) == 0

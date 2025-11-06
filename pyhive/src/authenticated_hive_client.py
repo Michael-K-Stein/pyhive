@@ -8,7 +8,6 @@ HTTP calls and an internal ``_AuthenticatedHiveClient`` which wraps an
 import functools
 import time
 from collections.abc import Callable
-from types import TracebackType
 from typing import Any, TypeVar, cast
 
 import httpx
@@ -28,7 +27,7 @@ def _retry_on_bad_gateway(func: F) -> F:
     """
 
     @functools.wraps(func)
-    def wrapper(self: "_AuthenticatedHiveClient", *args: Any, **kwargs: Any):
+    def wrapper(self: "AuthenticatedHiveClient", *args: Any, **kwargs: Any):
         delay = INITIAL_BACKOFF_SECONDS
         if MAX_RETRIES_ON_SERVER_ERRORS <= 0:
             raise ValueError("MAX_RETRIES_ON_SERVER_ERRORS must be greater than 0")
@@ -55,7 +54,7 @@ def _refresh_token_on_unauthorized(func: F) -> F:
     """
 
     @functools.wraps(func)
-    def wrapper(self: "_AuthenticatedHiveClient", *args: Any, **kwargs: Any):
+    def wrapper(self: "AuthenticatedHiveClient", *args: Any, **kwargs: Any):
         response = func(self, *args, **kwargs)
         if response.status_code == httpx.codes.UNAUTHORIZED.value:
             self._refresh_access_token()  # pylint: disable=protected-access
@@ -76,7 +75,7 @@ def _with_retries_and_token_refresh(func: F) -> F:
     return _refresh_token_on_unauthorized(_retry_on_bad_gateway(func))
 
 
-class _AuthenticatedHiveClient:
+class AuthenticatedHiveClient:
     """Internal class used to handle authentication and re-authentication with Hive web endpoint."""
 
     _refresh_token: str
@@ -123,30 +122,6 @@ class _AuthenticatedHiveClient:
         ).__enter__()
         self._login(username, password)
 
-    def __enter__(self) -> "_AuthenticatedHiveClient":
-        """Enter context manager and return this client instance.
-
-        The underlying :class:`httpx.Client` is managed by this object's
-        lifecycle; entering the context returns the authenticated client so
-        callers can perform API calls.
-        """
-
-        return self
-
-    def __exit__(
-        self,
-        type_: type[BaseException] | None,
-        value: BaseException | None,
-        traceback: TracebackType | None,
-    ) -> bool | None:
-        """Exit the context and close the underlying httpx session.
-
-        This delegates to the managed :class:`httpx.Client`'s ``__exit__``
-        method to ensure resources are released.
-        """
-
-        self._session.__exit__(type_, value, traceback)
-
     def _login(self, username: str, password: str) -> None:
         """Perform an authentication request and store access/refresh tokens.
 
@@ -190,7 +165,9 @@ class _AuthenticatedHiveClient:
         This is decorated to handle retries and token refresh automatically.
         """
 
-        return self._session.get(endpoint, params=params, headers={"Accept": "application/json"})
+        return self._session.get(
+            endpoint, params=params, headers={"Accept": "application/json"}
+        )
 
     @_with_retries_and_token_refresh
     def _post(self, endpoint: str, data: dict[Any, Any]) -> httpx.Response:
@@ -240,11 +217,3 @@ class _AuthenticatedHiveClient:
         """
 
         return self._post(endpoint, data).json()
-
-    def __repr__(self) -> str:
-        """Return a short representation including username and hive_url.
-
-        The representation intentionally omits secrets.
-        """
-
-        return f"HiveClient({self.username!r}, input(), {self.hive_url!r})"

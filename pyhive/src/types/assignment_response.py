@@ -1,20 +1,21 @@
 """Responses to assignments given to students."""
 
 import datetime
-from typing import TYPE_CHECKING, Any, TypeVar, Union, Generator
+from typing import TYPE_CHECKING, Any, Generator, TypeVar, Union
+
 from attrs import define, field
 from dateutil.parser import isoparse
 
-from .core_item import HiveCoreItem
-from .autocheck_status import AutoCheckStatus
 from .assignment import Assignment
-from .enums.assignment_response_type_enum import AssignmentResponseTypeEnum
+from .autocheck_status import AutoCheckStatus
 from .common import UNSET, Unset
+from .core_item import HiveCoreItem
+from .enums.assignment_response_type_enum import AssignmentResponseTypeEnum
 
 if TYPE_CHECKING:
-    from .user import User
-    from .assignment_response_content import AssignmentResponseContent
     from ...client import HiveClient
+    from .assignment_response_content import AssignmentResponseContent
+    from .user import User
 
 
 T = TypeVar("T", bound="AssignmentResponse")
@@ -114,9 +115,8 @@ class AssignmentResponse(HiveCoreItem):
         assignment_id: int,
         hive_client: "HiveClient",
     ) -> T:
-        from .assignment_response_content import (
-            AssignmentResponseContent,
-        )  # pylint: disable=import-outside-toplevel
+        from .assignment_response_content import \
+            AssignmentResponseContent  # pylint: disable=import-outside-toplevel
 
         d = dict(src_dict)
         id = d.pop("id")

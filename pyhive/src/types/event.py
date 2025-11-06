@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Any, Self, TypeVar, cast
 
 from attrs import define
 from dateutil.parser import isoparse
+
 from .common import UNSET, Unset
 from .core_item import HiveCoreItem
 from .enums.event_type_enum import EventTypeEnum
@@ -85,7 +86,8 @@ class Event(HiveCoreItem):
 
     @classmethod
     def from_dict(cls, src_dict: Mapping[str, Any], hive_client: "HiveClient") -> Self:
-        from .event_attendees_type_0_item import EventAttendeesType0Item  # pylint: disable=import-outside-toplevel
+        from .event_attendees_type_0_item import \
+            EventAttendeesType0Item  # pylint: disable=import-outside-toplevel
 
         d = dict(src_dict)
 

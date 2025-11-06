@@ -1,17 +1,18 @@
 """AssignmentResponseContent type definition."""
 
 from collections.abc import Mapping
-from typing import Any, TypeVar, TYPE_CHECKING
-from attrs import define, field as _attrs_field
+from typing import TYPE_CHECKING, Any, TypeVar
+
+from attrs import define
+from attrs import field as _attrs_field
 
 from .core_item import HiveCoreItem
 
 if TYPE_CHECKING:
     from ...client import HiveClient
-    from .form_field import FormField
-    from .assignment import Assignment
-    from .assignment import AssignmentLike
+    from .assignment import Assignment, AssignmentLike
     from .assignment_response import AssignmentResponse
+    from .form_field import FormField
 
 T = TypeVar("T", bound="AssignmentResponseContent")
 
@@ -108,9 +109,8 @@ class AssignmentResponseContent(HiveCoreItem):
     @property
     def content(self) -> "str | int | list[str | int]":
         """Lazily parse and return the content based on the field type."""
-        from .enums.form_field_type_enum import (
-            FormFieldTypeEnum,
-        )  # pylint: disable=import-outside-toplevel
+        from .enums.form_field_type_enum import \
+            FormFieldTypeEnum  # pylint: disable=import-outside-toplevel
 
         if self._content is None:
             if self.field.type_ is FormFieldTypeEnum.NUMBER:

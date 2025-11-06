@@ -4,6 +4,7 @@ from collections.abc import Generator, Mapping
 from typing import TYPE_CHECKING, Any, Self, TypeVar, cast
 
 from attrs import define, field
+
 from .core_item import HiveCoreItem
 from .enums.sync_status_enum import SyncStatusEnum
 
