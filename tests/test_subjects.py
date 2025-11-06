@@ -52,3 +52,30 @@ def test_get_subjects_by_parent_program_object():
         program = all_programs[0]
         filtered = list(client.get_subjects(parent_program=program))
         assert all(hasattr(s, "parent_program_id") and s.parent_program_id == program.id for s in filtered) or len(filtered) == 0
+
+
+def test_subjects_conflict_parent_program_filters_mismatch():
+    with HiveClient(**get_client_params()) as client:
+        programs = list(client.get_programs())
+        assert len(programs) > 0, "No programs available for conflict tests."
+        program = programs[0]
+        try:
+            list(
+                client.get_subjects(
+                    parent_program__id__in=[program.id + 123456], parent_program=program
+                )
+            )
+            assert False, "Expected assertion error for conflicting program filters"
+        except AssertionError:
+            pass
+
+
+def test_subjects_both_program_filters_match_allowed():
+    with HiveClient(**get_client_params()) as client:
+        programs = list(client.get_programs())
+        assert len(programs) > 0, "No programs available for conflict tests."
+        program = programs[0]
+        subjects = list(
+            client.get_subjects(parent_program__id__in=[program.id], parent_program=program)
+        )
+        assert isinstance(subjects, list)

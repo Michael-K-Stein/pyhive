@@ -124,3 +124,33 @@ def test_get_modules_by_program() -> None:
             )
             for module in modules
         )
+
+
+def test_modules_conflict_parent_program_filters_mismatch():
+    with HiveClient(**get_client_params()) as client:
+        programs = list(client.get_programs())
+        assert len(programs) > 0, "No programs available for module conflict tests."
+        program = programs[0]
+        try:
+            list(
+                client.get_modules(
+                    parent_subject__parent_program__id__in=[program.id + 98765],
+                    parent_program=program,
+                )
+            )
+            assert False, "Expected assertion error for conflicting program filters"
+        except AssertionError:
+            pass
+
+
+def test_modules_both_program_filters_match_allowed():
+    with HiveClient(**get_client_params()) as client:
+        programs = list(client.get_programs())
+        assert len(programs) > 0, "No programs available for module conflict tests."
+        program = programs[0]
+        modules = list(
+            client.get_modules(
+                parent_subject__parent_program__id__in=[program.id], parent_program=program
+            )
+        )
+        assert isinstance(modules, list)

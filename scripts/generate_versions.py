@@ -3,9 +3,8 @@
 import tomllib
 from pathlib import Path
 
-from hatchling.builders.hooks.plugin.interface import (  # pylint disable=import-error
-    BuildHookInterface,
-)
+from hatchling.builders.hooks.plugin.interface import \
+    BuildHookInterface  # pylint disable=import-error
 
 
 class GenerateVersionsBuildHook(BuildHookInterface):

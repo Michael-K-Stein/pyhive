@@ -9,6 +9,7 @@ from ..src.types.assignment_response import AssignmentResponse
 from .client_shared import ClientCoreMixin
 from .utils import resolve_item_or_id
 
+
 class AssignmentResponsesClientMixin(ClientCoreMixin):
     """
     Mixin class providing assignment response API methods to HiveClient.

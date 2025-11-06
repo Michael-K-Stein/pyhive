@@ -4,7 +4,9 @@ Provides access to the Hive server version information.
 """
 
 import re
+
 from .client_shared import ClientCoreMixin
+
 
 class VersionClientMixin(ClientCoreMixin):
     """Mixin that exposes the server-version endpoint."""

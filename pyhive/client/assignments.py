@@ -5,7 +5,7 @@ Adds methods for listing and retrieving Assignment records via the Hive API. Mea
 for use as a mixin on HiveClient.
 """
 
-from typing import Optional, Sequence, Iterable, TYPE_CHECKING
+from typing import TYPE_CHECKING, Iterable, Optional, Sequence
 
 from ..src.types.assignment import Assignment
 from .client_shared import ClientCoreMixin
