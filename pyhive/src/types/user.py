@@ -2,7 +2,7 @@
 
 import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Generator, Self, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Iterable, Self, TypeVar, cast
 
 from attrs import define, field
 from dateutil.parser import isoparse
@@ -446,6 +446,9 @@ class User(HiveCoreItem):  # pylint: disable=too-many-instance-attributes
             )
         return self._current_assignment
 
-    def get_assignments(self) -> Generator["Assignment", None, None]:
+    def get_assignments(self) -> Iterable["Assignment"]:
         """Get all assignments for this user."""
         return self.hive_client.get_assignments(user__id__in=[self.id])
+
+
+UserLike = TypeVar("UserLike", User, int)
