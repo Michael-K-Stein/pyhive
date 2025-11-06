@@ -3,15 +3,8 @@
 from types import TracebackType
 from typing import TYPE_CHECKING, Optional, Union
 
-if TYPE_CHECKING:
-    from httpx._types import ProxyTypes
-    from httpx import Timeout
-
-from ..src.api_versions import (
-    LATEST_API_VERSION,
-    MIN_API_VERSION,
-    SUPPORTED_API_VERSIONS,
-)
+from ..src.api_versions import (LATEST_API_VERSION, MIN_API_VERSION,
+                                SUPPORTED_API_VERSIONS)
 from .assignment_responses import AssignmentResponsesClientMixin
 from .assignments import AssignmentClientMixin
 from .classes import ClassesClientMixin
@@ -24,6 +17,10 @@ from .queues import QueuesClientMixin
 from .subjects import SubjectClientMixin
 from .users import UserClientMixin
 from .version import VersionClientMixin
+
+if TYPE_CHECKING:
+    from httpx import Timeout
+    from httpx._types import ProxyTypes
 
 
 class HiveClient(  # pylint: disable=too-many-ancestors,abstract-method

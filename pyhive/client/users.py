@@ -84,3 +84,81 @@ class UserClientMixin(ClientCoreMixin):
             mentor__id=resolve_item_or_id(of_mentor),
             program__id__in=[resolve_item_or_id(of_program)] if of_program else None,
         )
+
+    def get_user_by_name(
+        self,
+        name: str,
+        *,
+        clearance: Optional[ClearanceEnum] = None,
+    ) -> User | None:
+        all_users = list(
+            self.get_users(clearance__in=[clearance] if clearance else None)
+        )
+        # Try matching full user name
+        users_matching_full_name = list(
+            filter(
+                lambda user: f"{user.first_name} {user.last_name}" == name
+                or user.display_name == name,
+                all_users,
+            )
+        )
+        if users_matching_full_name == 1:
+            # Perfect name match found
+            # Note that this might fail on students ["אור דוד", "אור דוד כהן"]
+            #  where we want the first student, whose first name happens
+            #  to be exactly the full name of the second student
+            # TODO: Handle names better?
+            return users_matching_full_name[0]
+
+        # Try matching only first name
+        users_matching_first_name = list(
+            filter(
+                lambda user: user.first_name == name,
+                all_users,
+            )
+        )
+
+        if len(users_matching_first_name) > 1:
+            raise RuntimeError("More than one user found matching given name!")
+        return (
+            users_matching_first_name[0] if len(users_matching_first_name) > 0 else None
+        )
+
+    def get_student(
+        self, name: Optional[str] = None, number: Optional[int] = None
+    ) -> User | None:
+        if name is None and number is None:
+            raise ValueError("Either name or number must be given!")
+
+        if number is None:
+            assert name is not None
+            return self.get_user_by_name(name, clearance=ClearanceEnum.HANICH)
+
+        assert number is not None
+
+        all_students = list(self.get_students())
+
+        students_matching_number = list(
+            filter(lambda student: student.number == number, all_students)
+        )
+
+        if len(students_matching_number) == 0:
+            return None
+
+        if name is not None:
+            students_perfect_match = list(
+                filter(
+                    lambda student: student.first_name == name
+                    or student.last_name == name
+                    or student.display_name == name
+                    or f"{student.first_name} {student.last_name}" == name,
+                    students_matching_number,
+                )
+            )
+
+        if len(students_perfect_match) > 1:
+            raise RuntimeError(
+                "More than one student found matching given name and number!"
+            )
+
+        return students_perfect_match[0] if len(students_perfect_match) == 1 else None

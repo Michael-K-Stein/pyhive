@@ -184,5 +184,8 @@ class HelpClientMixin(ClientCoreMixin):
             hive_client=self,
         )
 
+    def delete_help_request(self, help_request: "HelpLike") -> None:
+        self.delete(f"/api/core/help/{resolve_item_or_id(help_request)}/")
+
     def delete_chat(self, chat: "HelpLike") -> None:
-        self.delete(f"/api/core/help/{resolve_item_or_id(chat)}/")
+        self.delete_help_request(help_request=chat)
