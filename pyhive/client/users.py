@@ -97,8 +97,11 @@ class UserClientMixin(ClientCoreMixin):
         # Try matching full user name
         users_matching_full_name = list(
             filter(
-                lambda user: f"{user.first_name} {user.last_name}" == name
-                or user.display_name == name,
+                lambda user: name
+                in (
+                    f"{user.first_name} {user.last_name}",
+                    user.display_name,
+                ),
                 all_users,
             )
         )
@@ -145,13 +148,17 @@ class UserClientMixin(ClientCoreMixin):
         if len(students_matching_number) == 0:
             return None
 
+        students_perfect_match = []
         if name is not None:
             students_perfect_match = list(
                 filter(
-                    lambda student: student.first_name == name
-                    or student.last_name == name
-                    or student.display_name == name
-                    or f"{student.first_name} {student.last_name}" == name,
+                    lambda student: name
+                    in (
+                        student.first_name,
+                        student.last_name,
+                        student.display_name,
+                        f"{student.first_name} {student.last_name}",
+                    ),
                     students_matching_number,
                 )
             )
