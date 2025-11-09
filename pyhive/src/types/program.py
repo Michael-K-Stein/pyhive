@@ -179,5 +179,8 @@ class Program(HiveCoreItem):
         """Allow iteration over this Program to yield its subjects."""
         yield from self.get_subjects()
 
+    def delete(self) -> None:
+        self.hive_client.delete_program(self.id)
+
 
 ProgramLike = TypeVar("ProgramLike", Program, int)

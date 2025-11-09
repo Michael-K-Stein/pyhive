@@ -448,5 +448,8 @@ class User(HiveCoreItem):  # pylint: disable=too-many-instance-attributes
         """Get all assignments for this user."""
         return self.hive_client.get_assignments(for_user=self)
 
+    def delete(self) -> None:
+        self.hive_client.delete_user(self.id)
+
 
 UserLike = TypeVar("UserLike", User, int)

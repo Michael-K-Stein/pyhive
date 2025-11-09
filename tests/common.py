@@ -1,5 +1,9 @@
 from typing import Any
 
+import pytest
+
+from pyhive import HiveClient
+
 
 def get_client_params() -> dict[str, Any]:
     return {
@@ -9,3 +13,4 @@ def get_client_params() -> dict[str, Any]:
         "verify": False,
         "timeout": 20,  # Very long timeout so tests do not fail just because the Hive endpoint is slow
     }
+

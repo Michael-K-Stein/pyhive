@@ -1,6 +1,5 @@
 import re
 
-import httpx
 import pytest
 
 from pyhive.client import HiveClient
@@ -20,211 +19,111 @@ def test_client():
         assert client.hive_url == hive_url
 
 
-def test_get():
-    with HiveClient(**get_client_params()) as client:
-        response = client._get("/")
-        response.raise_for_status()
-        assert response.status_code == httpx.codes.OK
+def test_get_root_ok(client):
+    """_get('/') returns HTTP 200 OK."""
+    resp = client._get("/")
+    resp.raise_for_status()
+    assert resp.status_code == 200
 
 
-def test_get_classes_returns_generator_and_calls_get():
-    with HiveClient(**get_client_params()) as client:
-        result = list(client.get_classes())
-        assert len(result) == 4
-        assert all(isinstance(item, Class) for item in result)
+def test_get_classes(client):
+    classes = list(client.get_classes())
+    assert len(classes) > 0
+    assert all(isinstance(c, Class) for c in classes)
 
 
-def test_get_classes_with_filters():
-    with HiveClient(**get_client_params()) as client:
-        # Test with name filter
-        classes = list(client.get_classes(name="בינוניים"))
-        assert all(c.name == "בינוניים" for c in classes)
+def test_get_classes_with_filters(client):
+    # Name filter
+    name_filter = "בינוניים"
+    filtered = list(client.get_classes(name=name_filter))
+    assert all(c.name == name_filter for c in filtered)
 
-        # Test with type filter
-        filtered_classes = list(client.get_classes(type_=ClassTypeEnum.STUDENT_GROUP))
-        assert all(c.type_ == ClassTypeEnum.STUDENT_GROUP for c in filtered_classes)
-
-
-def test_get_class_by_id():
-    with HiveClient(**get_client_params()) as client:
-        classes = list(client.get_classes())
-
-        assert len(classes) > 0, "No classes available to test."
-
-        class_id = classes[0].id
-        specific_class = client.get_class(class_id)
-        assert isinstance(specific_class, Class)
-        assert specific_class.id == class_id
+    # Type filter
+    type_filter = ClassTypeEnum.STUDENT_GROUP
+    filtered_type = list(client.get_classes(type_=type_filter))
+    assert all(c.type_ == type_filter for c in filtered_type)
 
 
-def test_get_users():
-    with HiveClient(**get_client_params()) as client:
-        users = list(client.get_users())
-        assert all(isinstance(user, User) for user in users)
+def test_get_class_by_id(client):
+    cls = next(client.get_classes())
+    fetched = client.get_class(cls.id)
+    assert isinstance(fetched, Class)
+    assert fetched.id == cls.id
 
 
-def test_get_user_by_id():
-    with HiveClient(**get_client_params()) as client:
-        users = list(client.get_users())
-
-        assert len(users) > 0, "No users available to test."
-
-        user_id = users[0].id
-        specific_user = client.get_user(user_id)
-        assert isinstance(specific_user, User)
-        assert specific_user.id == user_id
+def test_get_users(client):
+    users = list(client.get_users())
+    assert len(users) > 0
+    assert all(isinstance(u, User) for u in users)
 
 
-def test_get_exercises():
-    with HiveClient(**get_client_params()) as client:
-        exercises = list(client.get_exercises())
-        assert len(exercises) > 0, "No exercises available to test."
-        assert all(isinstance(exercise, Exercise) for exercise in exercises)
+def test_get_user_by_id(client):
+    user = next(client.get_users())
+    fetched = client.get_user(user.id)
+    assert isinstance(fetched, User)
+    assert fetched.id == user.id
 
 
-def test_get_exercise_by_id():
-    with HiveClient(**get_client_params()) as client:
-        exercises = list(client.get_exercises())
-        assert len(exercises) > 0, "No exercises available to test."
-
-        exercise_id = exercises[0].id
-        specific_exercise = client.get_exercise(exercise_id)
-        assert isinstance(specific_exercise, Exercise)
-        assert specific_exercise.id == exercise_id
+def test_get_exercises(client):
+    exercises = list(client.get_exercises())
+    assert exercises
+    assert all(isinstance(e, Exercise) for e in exercises)
 
 
-def test_get_exercise_fields():
-    with HiveClient(**get_client_params()) as client:
-        exercises = list(client.get_exercises())
-
-        assert len(exercises) > 0, "No exercises available to test."
-
-        fields = list(client.get_exercise_fields(exercises[0]))
-        assert all(isinstance(field, FormField) for field in fields)
+def test_get_exercise_by_id(client):
+    exercise = next(client.get_exercises())
+    fetched = client.get_exercise(exercise.id)
+    assert isinstance(fetched, Exercise)
+    assert fetched.id == exercise.id
 
 
-def test_get_exercise_field_by_id():
-    with HiveClient(**get_client_params()) as client:
-        exercises = list(client.get_exercises())
-
-        assert len(exercises) > 0, "No exercises available to test."
-
-        found_at_least_one_field = False
-        for exercise in exercises:
-            for field in client.get_exercise_fields(exercise):
-                sanity_field = client.get_exercise_field(exercise, field.id)
-                assert isinstance(sanity_field, FormField)
-                assert sanity_field.id == field.id
-                assert isinstance(field, FormField)
-                assert field == sanity_field
-                found_at_least_one_field = True
-        assert found_at_least_one_field, "No exercise fields available to test."
+def test_get_exercise_fields(client):
+    exercise = next(client.get_exercises())
+    fields = list(client.get_exercise_fields(exercise))
+    assert all(isinstance(f, FormField) for f in fields)
 
 
-def test_get_assignments():
-    with HiveClient(**get_client_params()) as client:
-        assignments = list(client.get_assignments())
-        assert all(isinstance(assignment, Assignment) for assignment in assignments)
-        assert all(
-            isinstance(assignment.exercise, Exercise) for assignment in assignments
-        )
+def test_get_exercise_field_by_id(client):
+    found = False
+    for exercise in client.get_exercises():
+        for field in client.get_exercise_fields(exercise):
+            fetched = client.get_exercise_field(exercise, field.id)
+            assert isinstance(fetched, FormField)
+            assert fetched.id == field.id
+            assert field == fetched
+            found = True
+    assert found, "No exercise fields available to test."
 
 
-# TODO: Remove xfail once assignments are seeded in the test dataset
-@pytest.mark.xfail(strict=False, reason="No assignments available yet in fixtures")
-def test_get_assignment_by_id():
-    with HiveClient(**get_client_params()) as client:
-        assignments = list(client.get_assignments())
-
-        assert len(assignments) > 0, "No assignments available to test."
-
-        assignment_id = assignments[0].id
-        specific_assignment = client.get_assignment(assignment_id)
-        assert isinstance(specific_assignment, Assignment)
-        assert specific_assignment.id == assignment_id
+def test_get_assignments(client):
+    assignments = list(client.get_assignments())
+    assert all(isinstance(a, Assignment) for a in assignments)
+    assert all(isinstance(a.exercise, Exercise) for a in assignments)
 
 
-# TODO: Remove xfail once assignments are seeded in the test dataset
-@pytest.mark.xfail(strict=False, reason="No assignments available yet in fixtures")
-def test_get_assignment_responses():
-    with HiveClient(**get_client_params()) as client:
-        assignments = list(client.get_assignments())
-
-        assert len(assignments) > 0, "No assignments available to test."
-
-        responses = list(client.get_assignment_responses(assignments[0]))
-        assert all(isinstance(response, AssignmentResponse) for response in responses)
+@pytest.mark.xfail(strict=False, reason="No assignments seeded yet")
+def test_get_assignment_by_id(client):
+    assignment = next(client.get_assignments())
+    fetched = client.get_assignment(assignment.id)
+    assert isinstance(fetched, Assignment)
+    assert fetched.id == assignment.id
 
 
-# TODO: Remove xfail once assignments are seeded in the test dataset
-@pytest.mark.xfail(strict=False, reason="No assignments available yet in fixtures")
-def test_get_assignment_response_by_id():
-    with HiveClient(**get_client_params()) as client:
-        assignments = list(client.get_assignments())
-
-        assert len(assignments) > 0, "No assignments available to test."
-
-        responses = list(client.get_assignment_responses(assignments[0]))
-        if responses:
-            response = client.get_assignment_response(assignments[0], responses[0].id)
-            assert isinstance(response, AssignmentResponse)
-            assert response.id == responses[0].id
+@pytest.mark.xfail(strict=False, reason="No assignments seeded yet")
+def test_get_assignment_responses(client):
+    assignment = next(client.get_assignments())
+    responses = list(client.get_assignment_responses(assignment))
+    assert all(isinstance(r, AssignmentResponse) for r in responses)
 
 
-def test_assignments_conflict_module_id_and_object_mismatch():
-    with HiveClient(**get_client_params()) as client:
-        modules = list(client.get_modules())
-        assert modules, "No modules available for assignment conflict tests."
-        module = modules[0]
-
-        with pytest.raises(AssertionError):
-            list(
-                client.get_assignments(
-                    parent_module=module,
-                    exercise__parent_module__id=module.id + 1,
-                )
-            )
-
-
-def test_assignments_conflict_subject_id_and_object_mismatch():
-    with HiveClient(**get_client_params()) as client:
-        subjects = list(client.get_subjects())
-        assert subjects, "No subjects available for assignment conflict tests."
-        subject = subjects[0]
-
-        with pytest.raises(AssertionError):
-            list(
-                client.get_assignments(
-                    parent_subject=subject,
-                    exercise__parent_module__parent_subject__id=subject.id + 1,
-                )
-            )
-
-
-def test_assignments_conflict_user_classes_id_and_id_in():
-    with HiveClient(**get_client_params()) as client:
-        with pytest.raises(AssertionError):
-            list(
-                client.get_assignments(
-                    user__classes__id=1,
-                    user__classes__id__in=[1, 2],
-                )
-            )
-
-
-def test_assignments_conflict_user_id_in_and_for_user_mismatch():
-    with HiveClient(**get_client_params()) as client:
-        users = list(client.get_users())
-        assert users, "No users available for assignment conflict tests."
-        user = users[0]
-
-        with pytest.raises(AssertionError):
-            list(
-                client.get_assignments(
-                    user__id__in=[user.id + 1],
-                    for_user=user,
-                )
-            )
+@pytest.mark.xfail(strict=False, reason="No assignments seeded yet")
+def test_get_assignment_response_by_id(client):
+    assignment = next(client.get_assignments())
+    responses = list(client.get_assignment_responses(assignment))
+    if responses:
+        resp = client.get_assignment_response(assignment, responses[0].id)
+        assert isinstance(resp, AssignmentResponse)
+        assert resp.id == responses[0].id
 
 
 @pytest.mark.parametrize(
@@ -235,18 +134,40 @@ def test_assignments_conflict_user_id_in_and_for_user_mismatch():
         {"user__mentor__id__in": [1], "for_mentees_of": 1},
     ],
 )
-def test_assignments_conflict_mentor_filters_any_two(kwargs):
-    with HiveClient(**get_client_params()) as client:
+def test_assignments_conflict_mentor_filters(client, kwargs):
+    with pytest.raises(AssertionError):
+        list(client.get_assignments(**kwargs))
+
+@pytest.mark.parametrize(
+    "conflict_case",
+    [
+        ("module", "parent_module", "exercise__parent_module__id"),
+        ("subject", "parent_subject", "exercise__parent_module__parent_subject__id"),
+        ("user_classes", "user__classes__id", "user__classes__id__in"),
+        ("user_id", "user__id__in", "for_user"),
+    ],
+)
+def test_assignments_conflicts(client, conflict_case):
+    name, arg1, arg2 = conflict_case
+
+    if name in ("module", "subject"):
+        items = list(getattr(client, f"get_{name}s")())
+        assert items
+        item = items[0]
         with pytest.raises(AssertionError):
-            list(client.get_assignments(**kwargs))
+            list(client.get_assignments(**{arg1: item, arg2: getattr(item, "id") + 1}))
+    elif name == "user_id":
+        with pytest.raises(AssertionError):
+            list(client.get_assignments(**{arg1: [1], arg2: 1}))
+    else:  # user_classes
+        with pytest.raises(AssertionError):
+            list(client.get_assignments(**{arg1: 1, arg2: [1, 2]}))
 
 
-def test_get_hive_version():
-    with HiveClient(**get_client_params()) as client:
-        version = client.get_hive_version()
-        assert isinstance(version, str)
-        assert len(version) > 0
-        assert re.match(r"^\d+\.\d+\.\d+", version)
+def test_get_hive_version(client):
+    version = client.get_hive_version()
+    assert isinstance(version, str)
+    assert re.match(r"^\d+\.\d+\.\d+", version)
 
 
 def test_invalid_hive_version_raises(monkeypatch):
@@ -254,10 +175,9 @@ def test_invalid_hive_version_raises(monkeypatch):
 
     invalid = "0.0.0-unsupported"
     monkeypatch.setattr(HiveClient, "get_hive_version", lambda self: invalid)
-    with pytest.raises(RuntimeError) as ei:
-        # Constructing triggers version check in __init__
+    with pytest.raises(RuntimeError) as exc:
         HiveClient(**get_client_params())
-    msg = str(ei.value)
+    msg = str(exc.value)
     assert f"Unsupported Hive API version '{invalid}'" in msg
     assert f"{MIN_API_VERSION} .. {LATEST_API_VERSION}" in msg
 
@@ -266,5 +186,5 @@ def test_skip_version_check(monkeypatch):
     invalid = "0.0.0-unsupported"
     monkeypatch.setattr(HiveClient, "get_hive_version", lambda self: invalid)
     # Should not raise when skip_version_check=True
-    with HiveClient(**get_client_params(), skip_version_check=True) as client:
-        assert client is not None
+    with HiveClient(**get_client_params(), skip_version_check=True) as client2:
+        assert client2 is not None

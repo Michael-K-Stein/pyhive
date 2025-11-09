@@ -7,6 +7,8 @@ from __future__ import annotations
 from pyhive.src.types.assignment import Assignment
 from pyhive.src.types.assignment_response import AssignmentResponse
 from pyhive.src.types.class_ import Class
+from pyhive.src.types.enums.clearance_enum import ClearanceEnum
+from pyhive.src.types.enums.gender_enum import GenderEnum
 from pyhive.src.types.exercise import Exercise
 from pyhive.src.types.form_field import FormField
 from pyhive.src.types.module import Module
@@ -24,4 +26,6 @@ __all__ = [
     "FormField",
     "Subject",
     "Program",
+    "ClearanceEnum",
+    "GenderEnum",
 ]

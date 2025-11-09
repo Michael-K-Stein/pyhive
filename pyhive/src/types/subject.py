@@ -1,7 +1,7 @@
 """Defines the Subject type and related functionality for the Hive API Python bindings."""
 
 from collections.abc import Generator, Mapping
-from typing import TYPE_CHECKING, Any, Self, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Iterable, Self, TypeVar, cast
 
 from attrs import define, field
 
@@ -44,6 +44,7 @@ class Subject(HiveCoreItem):
     sync_status: SyncStatusEnum
     sync_message: str | None
     segel_path: str
+    segel_brief: str
     _parent_program: "Program | None" = field(init=False, default=None)
 
     def to_dict(self) -> dict[str, Any]:
@@ -58,6 +59,7 @@ class Subject(HiveCoreItem):
             "sync_status": self.sync_status.value,
             "sync_message": self.sync_message,
             "segel_path": self.segel_path,
+            "segel_brief": self.segel_brief,
         }
 
     @classmethod
@@ -83,6 +85,7 @@ class Subject(HiveCoreItem):
             sync_status=SyncStatusEnum(src_dict["sync_status"]),
             sync_message=cast("str | None", src_dict.get("sync_message")),
             segel_path=src_dict["segel_path"],
+            segel_brief=src_dict["segel_brief"],
         )
 
     @property
@@ -97,11 +100,11 @@ class Subject(HiveCoreItem):
             self._parent_program = self.hive_client.get_program(self.parent_program_id)
         return self._parent_program
 
-    def get_modules(self) -> Generator["Module"]:
+    def get_modules(self) -> Iterable["Module"]:
         """Retrieve all modules associated with this subject.
 
         Returns:
-            Generator[Module]: Generator of Module instances.
+            Iterable[Module]: Iterable of Module instances.
 
         """
         return self.hive_client.get_modules(parent_subject__id=self.id)
@@ -152,6 +155,9 @@ class Subject(HiveCoreItem):
                 self.parent_program_id,
             )
         )
+
+    def delete(self) -> None:
+        self.hive_client.delete_subject(self.id)
 
 
 SubjectLike = TypeVar("SubjectLike", Subject, int)

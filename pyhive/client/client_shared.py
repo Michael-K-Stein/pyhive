@@ -3,7 +3,7 @@
 - ``ClientCoreMixin``: base class that provides ``_get_core_items`` used by resource mixins.
 """
 
-from typing import Any, Generator, Optional
+from typing import Any, Generator, Iterable, Optional
 
 import httpx
 
@@ -25,7 +25,7 @@ class ClientCoreMixin(AuthenticatedHiveClient):
         /,
         extra_ctor_params: Optional[dict[str, Any]] = None,
         **kwargs,
-    ) -> Generator[CoreItemTypeT, None, None]:
+    ) -> Iterable[CoreItemTypeT]:
         """Yield typed items from a list endpoint with optional query parameters.
 
         Handles both non-paginated list responses and DRF-style paginated
@@ -54,14 +54,14 @@ class ClientCoreMixin(AuthenticatedHiveClient):
 
         # Non-paginated: assume the payload is the items list (or empty)
         if not (isinstance(data, dict) and "results" in data):
-            items = data if isinstance(data, list) else []
-            return (
+            items: list = data if isinstance(data, list) else []
+            yield from (
                 item_type.from_dict(x, **extra_ctor_params, hive_client=self)
                 for x in items
             )
 
         # Paginated: follow "next" links and yield all pages
-        def _paginate() -> Generator[CoreItemTypeT, None, None]:
+        def _paginate() -> Iterable[CoreItemTypeT]:
             page = data
             while True:
                 items = page.get("results", [])

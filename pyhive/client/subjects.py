@@ -7,7 +7,7 @@ Intended for use as a mixin on the main HiveClient only.
 
 from typing import TYPE_CHECKING, Iterable, Optional
 
-from ..src.types.subject import Subject
+from ..src.types.subject import Subject, SubjectLike
 from .client_shared import ClientCoreMixin
 from .utils import resolve_item_or_id
 
@@ -65,3 +65,37 @@ class SubjectClientMixin(ClientCoreMixin):
             self.get(f"/api/core/course/subjects/{subject_id}/"),
             hive_client=self,
         )
+
+    def create_subject(
+        self,
+        symbol: str,
+        name: str,
+        program: "ProgramLike",
+        color: str,
+        segel_brief: str = "",
+    ) -> Subject:
+        """
+        Create a Subject via the Hive API.
+        """
+
+        from ..client import HiveClient
+
+        assert isinstance(self, HiveClient), "self must be an instance of HiveClient"
+
+        assert program is not None, "Subject creation requires a valid program!"
+
+        payload: dict[str, object] = {
+            "name": name,
+            "symbol": symbol,
+            "parent_program": resolve_item_or_id(program),
+            "color": color,
+            "segel_brief": segel_brief,
+        }
+
+        response = self.post("/api/core/course/subjects/", payload)
+
+        return Subject.from_dict(response, hive_client=self)
+
+    def delete_subject(self, subject: "SubjectLike") -> None:
+        assert subject is not None, "Cannot delete None subject!"
+        self.delete(f"/api/core/course/subjects/{resolve_item_or_id(subject)}/")

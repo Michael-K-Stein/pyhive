@@ -11,6 +11,7 @@ from collections.abc import Callable
 from typing import TYPE_CHECKING, Any, Optional, TypeVar, cast
 
 import httpx
+from httpx import HTTPStatusError
 
 if TYPE_CHECKING:
     from httpx._types import ProxyTypes
@@ -62,6 +63,12 @@ def _refresh_token_on_unauthorized(func: F) -> F:
         if response.status_code == httpx.codes.UNAUTHORIZED.value:
             self._refresh_access_token()  # pylint: disable=protected-access
             response = func(self, *args, **kwargs)
+        if response.status_code == httpx.codes.BAD_REQUEST.value:
+            raise HTTPStatusError(
+                f"Bad request! {response.json()}",
+                request=response.request,
+                response=response,
+            )
         response.raise_for_status()
         return response
 
@@ -208,7 +215,9 @@ class AuthenticatedHiveClient:
 
         return self._session.put(endpoint, json=data)
 
-    def get(self, endpoint: str, params: httpx.QueryParams | None = None) -> Any:
+    def get(
+        self, endpoint: str, params: httpx.QueryParams | None = None
+    ) -> dict[str, Any]:
         """High-level GET that returns parsed JSON from the response.
 
         This calls the decorated ``_get`` helper and returns its JSON body.
@@ -216,15 +225,28 @@ class AuthenticatedHiveClient:
 
         return self._get(endpoint, params).json()
 
-    def post(self, endpoint: str, data: dict[Any, Any]) -> Any:
+    def post(self, endpoint: str, data: dict[Any, Any]) -> dict[str, Any]:
         """High-level POST that returns parsed JSON from the response.
 
         The ``data`` dict is JSON-encoded for the request body.
+        Raises an exception with response JSON included for HTTP 400.
         """
-
-        return self._post(endpoint, data).json()
+        try:
+            resp = self._post(endpoint, data)
+            resp.raise_for_status()
+        except HTTPStatusError as exc:
+            # If status code is 400, raise with response JSON
+            if exc.response.status_code == 400:
+                try:
+                    error_json = exc.response.json()
+                except Exception:
+                    error_json = exc.response.text
+                raise ValueError(f"HTTP 400 Error: {error_json}") from exc
+            # Otherwise, re-raise the original HTTP error
+            raise
+        return resp.json()
 
     def delete(self, endpoint: str, force: bool = False) -> None:
         response = self._delete(endpoint)
-        if response.status_code != httpx.codes.NO_CONTENT:  # 204 No response body
+        if response.status_code != httpx.codes.NO_CONTENT.value:  # 204 No response body
             raise RuntimeError("Failed to delete!")

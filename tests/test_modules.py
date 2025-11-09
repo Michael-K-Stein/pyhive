@@ -150,7 +150,8 @@ def test_modules_both_program_filters_match_allowed():
         program = programs[0]
         modules = list(
             client.get_modules(
-                parent_subject__parent_program__id__in=[program.id], parent_program=program
+                parent_subject__parent_program__id__in=[program.id],
+                parent_program=program,
             )
         )
         assert isinstance(modules, list)

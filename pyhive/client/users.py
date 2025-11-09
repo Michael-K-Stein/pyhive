@@ -3,7 +3,12 @@
 Provides listing and retrieval of user records from the management API.
 """
 
-from typing import TYPE_CHECKING, Generator, Iterable, Optional
+from typing import TYPE_CHECKING, Any, Generator, Iterable, Optional
+
+from pyhive.src.types.assignment import Assignment
+from pyhive.src.types.common import UNSET, Unset
+from pyhive.src.types.enums.gender_enum import GenderEnum
+from pyhive.src.types.enums.status_enum import StatusEnum
 
 from ..client.utils import resolve_item_or_id
 from ..src.types.enums.clearance_enum import ClearanceEnum
@@ -13,6 +18,7 @@ from .client_shared import ClientCoreMixin
 if TYPE_CHECKING:
     from ..src.types.class_ import ClassLike
     from ..src.types.program import ProgramLike
+    from ..src.types.queue import QueueLike
     from ..src.types.user import UserLike
 
 
@@ -101,11 +107,12 @@ class UserClientMixin(ClientCoreMixin):
                 in (
                     f"{user.first_name} {user.last_name}",
                     user.display_name,
+                    user.username,
                 ),
                 all_users,
             )
         )
-        if users_matching_full_name == 1:
+        if len(users_matching_full_name) == 1:
             # Perfect name match found
             # Note that this might fail on students ["אור דוד", "אור דוד כהן"]
             #  where we want the first student, whose first name happens
@@ -169,3 +176,132 @@ class UserClientMixin(ClientCoreMixin):
             )
 
         return students_perfect_match[0] if len(students_perfect_match) == 1 else None
+
+    def create_user(
+        self,
+        username: str,
+        password: str,
+        *,
+        clearance: ClearanceEnum,
+        gender: GenderEnum,
+        number: Optional[int] = None,
+        first_name: Optional[str] = None,
+        last_name: Optional[str] = None,
+        mentees: Optional[list["UserLike"]] = None,
+        status: StatusEnum = StatusEnum.PRESENT,
+        avatar_filename: Optional[str] = None,
+        program: Optional["ProgramLike"] = None,
+        checkers_brief: Optional[str] = None,
+        mentor: Optional["UserLike"] = None,
+        classes: Optional[list["ClassLike"]] = None,
+        queue: Optional["QueueLike"] = None,
+        disable_queue: Optional[bool] = None,
+        user_queue: Optional["QueueLike"] = None,
+        disable_user_queue: Optional[bool] = None,
+        override_queue: Optional["QueueLike"] = None,
+        confirmed: Optional[bool] = None,
+        teacher: Optional[bool] = None,
+        hostname: Optional[str] = None,
+    ) -> User:
+        from ..client import HiveClient
+
+        assert isinstance(self, HiveClient), "self must be an instance of HiveClient"
+
+        payload: dict[str, object] = {
+            "username": username,
+            "password": password,
+            "clearance": clearance,
+            "gender": gender,
+            "status": status,
+        }
+
+        # Only add optional fields if they are not None
+        if number is not None:
+            payload["number"] = number
+        if first_name is not None:
+            payload["first_name"] = first_name
+        if last_name is not None:
+            payload["last_name"] = last_name
+
+        if mentees is None:
+            mentees = []
+        payload["mentees"] = [resolve_item_or_id(m) for m in mentees]
+
+        if avatar_filename is not None:
+            payload["avatar_filename"] = avatar_filename
+        if program is not None:
+            payload["program"] = resolve_item_or_id(program)
+        if checkers_brief is not None:
+            payload["checkers_brief"] = checkers_brief
+        if mentor is not None:
+            payload["mentor"] = resolve_item_or_id(mentor)
+        if classes is not None:
+            payload["classes"] = [resolve_item_or_id(c) for c in classes]
+        if queue is not None:
+            payload["queue"] = resolve_item_or_id(queue)
+        if disable_queue is not None:
+            payload["disable_queue"] = disable_queue
+        if user_queue is not None:
+            payload["user_queue"] = resolve_item_or_id(user_queue)
+        if disable_user_queue is not None:
+            payload["disable_user_queue"] = disable_user_queue
+        if override_queue is not None:
+            payload["override_queue"] = resolve_item_or_id(override_queue)
+        if confirmed is not None:
+            payload["confirmed"] = confirmed
+        if teacher is not None:
+            payload["teacher"] = teacher
+        if hostname is not None:
+            payload["hostname"] = hostname
+
+        response = self.post("/api/core/management/users/", payload)
+
+        return User.from_dict(response, hive_client=self)
+
+    def delete_user(self, user: "UserLike") -> None:
+        self.delete(f"/api/core/management/users/{resolve_item_or_id(user)}/", True)
+
+    def create_student(
+        self,
+        username: str,
+        password: str,
+        gender: GenderEnum,
+        *,
+        number: Optional[int] = None,
+        first_name: Optional[str] = None,
+        last_name: Optional[str] = None,
+        program: Optional["ProgramLike"] = None,
+        hostname: Optional[str] = None,
+        status: StatusEnum = StatusEnum.PRESENT,
+        mentor: Optional["UserLike"] = None,
+        classes: Optional[list["ClassLike"]] = None,
+        avatar_filename: Optional[str] = None,
+        checkers_brief: Optional[str] = None,
+        queue: Optional["QueueLike"] = None,
+        user_queue: Optional["QueueLike"] = None,
+        disable_queue: Optional[bool] = None,
+        disable_user_queue: Optional[bool] = None,
+        override_queue: Optional["QueueLike"] = None,
+    ):
+        return self.create_user(
+            username=username,
+            password=password,
+            gender=gender,
+            clearance=ClearanceEnum.HANICH,
+            number=number,
+            first_name=first_name,
+            last_name=last_name,
+            program=program,
+            hostname=hostname,
+            status=status,
+            mentor=mentor,
+            classes=classes,
+            avatar_filename=avatar_filename,
+            checkers_brief=checkers_brief,
+            queue=queue,
+            user_queue=user_queue,
+            disable_queue=disable_queue,
+            disable_user_queue=disable_user_queue,
+            override_queue=override_queue,
+            teacher=False,
+        )

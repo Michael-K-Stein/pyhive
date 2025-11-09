@@ -148,3 +148,5 @@ class Queue(HiveCoreItem):
     def program(self) -> "Program":
         """Return the resolved :class:`Program` for this queue entry."""
         return self.hive_client.get_program(self.program_id)
+
+QueueLike = TypeVar("QueueLike", Queue, int)
