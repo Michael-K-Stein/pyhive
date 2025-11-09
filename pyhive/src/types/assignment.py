@@ -147,7 +147,10 @@ class Assignment(HiveCoreItem):
         student_assignment_status = (
             AssignmentStatusEnum(d["student_assignment_status"])
             if "student_assignment_status" in d
-            and not isinstance(d["student_assignment_status"], Unset)
+            and not (
+                isinstance(d["student_assignment_status"], Unset)
+                or d["student_assignment_status"] is None
+            )
             else UNSET
         )
 
