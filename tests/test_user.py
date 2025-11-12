@@ -75,3 +75,95 @@ def test_create_students(client: HiveClient, mentor: User, program: Program):
         assert user is not None
         assert isinstance(user, User)
         user.delete()
+
+
+def test_update_user(client: HiveClient, mentor: User, program: Program):
+    USER_DATA = {
+        "username": "student-123",
+        "first_name": "Bob",
+        "last_name": "Johnson",
+        "checkers_brief": "I don't know",
+        "hostname": "bobinson",
+    }
+    user = client.create_user(
+        username=USER_DATA["username"],
+        password="test123",
+        clearance=ClearanceEnum.HANICH,
+        gender=GenderEnum.NONBINARY,
+        number=123,
+        first_name=USER_DATA["first_name"],
+        last_name=USER_DATA["last_name"],
+        checkers_brief=USER_DATA["checkers_brief"],
+        hostname=USER_DATA["hostname"],
+        program=program,
+        mentor=mentor,
+    )
+    assert user is not None and isinstance(user, User)
+
+    try:
+        NEW_LAST_NAME = "Smith"
+        assert (
+            user.last_name != NEW_LAST_NAME
+        ), "User's last name is already the updated one!"
+        user.last_name = NEW_LAST_NAME
+
+        updated_user = client.update_user(user)
+        assert updated_user
+
+        assert updated_user.last_name == NEW_LAST_NAME, "Last name not updated!"
+
+        assert user == updated_user, "User's are not equal!"
+
+        updated_user.delete()
+        with pytest.raises(Exception):
+            user.delete()
+    except Exception:
+        user.delete()
+
+
+def test_update_user_in_place(client: HiveClient, mentor: User, program: Program):
+    USER_DATA = {
+        "username": "student-123",
+        "first_name": "Bob",
+        "last_name": "Johnson",
+        "checkers_brief": "I don't know",
+        "hostname": "bobinson",
+    }
+    user = client.create_user(
+        username=USER_DATA["username"],
+        password="test123",
+        clearance=ClearanceEnum.HANICH,
+        gender=GenderEnum.NONBINARY,
+        number=123,
+        first_name=USER_DATA["first_name"],
+        last_name=USER_DATA["last_name"],
+        checkers_brief=USER_DATA["checkers_brief"],
+        hostname=USER_DATA["hostname"],
+        program=program,
+        mentor=mentor,
+    )
+    assert user is not None and isinstance(user, User)
+
+    try:
+        NEW_LAST_NAME = "Smith"
+        assert (
+            user.last_name != NEW_LAST_NAME
+        ), "User's last name is already the updated one!"
+        user.last_name = NEW_LAST_NAME
+
+        user_capture = user.to_dict()
+
+        user.update()
+
+        updated_user_capture = client.get_user(user.id).to_dict()
+
+        for key in set(user_capture.keys()).union(updated_user_capture.keys()):
+            if key == "display_name":
+                # Expected to be unequal since the local capture is not validated
+                assert user_capture[key] != updated_user_capture[key]
+                continue
+            assert (
+                user_capture[key] == updated_user_capture[key]
+            ), f"Data mismatch for {key} of updated user post update!"
+    finally:
+        user.delete()

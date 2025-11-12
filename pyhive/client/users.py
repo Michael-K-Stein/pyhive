@@ -305,3 +305,17 @@ class UserClientMixin(ClientCoreMixin):
             override_queue=override_queue,
             teacher=False,
         )
+
+    def update_user(self, user: User) -> User:
+        """Commits the local state of the user to the server"""
+        from ..client import HiveClient
+
+        assert isinstance(self, HiveClient), "self must be an instance of HiveClient"
+
+        return User.from_dict(
+            self.put(
+                f"/api/core/management/users/{resolve_item_or_id(user)}/",
+                user.to_dict(),
+            ),
+            hive_client=self,
+        )

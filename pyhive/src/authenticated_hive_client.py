@@ -250,3 +250,6 @@ class AuthenticatedHiveClient:
         response = self._delete(endpoint)
         if response.status_code != httpx.codes.NO_CONTENT.value:  # 204 No response body
             raise RuntimeError("Failed to delete!")
+
+    def put(self, endpoint: str, data: dict[Any, Any]) -> dict[Any, Any]:
+        return self._put(endpoint, data).json()

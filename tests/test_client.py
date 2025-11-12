@@ -138,6 +138,7 @@ def test_assignments_conflict_mentor_filters(client, kwargs):
     with pytest.raises(AssertionError):
         list(client.get_assignments(**kwargs))
 
+
 @pytest.mark.parametrize(
     "conflict_case",
     [

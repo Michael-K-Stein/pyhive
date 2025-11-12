@@ -444,12 +444,21 @@ class User(HiveCoreItem):  # pylint: disable=too-many-instance-attributes
             )
         return self._current_assignment
 
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, User):
+            return False
+        return self.id == other.id
+
     def get_assignments(self) -> Iterable["Assignment"]:
         """Get all assignments for this user."""
         return self.hive_client.get_assignments(for_user=self)
 
     def delete(self) -> None:
         self.hive_client.delete_user(self.id)
+
+    def update(self) -> None:
+        """Commit the current state of the user to the server"""
+        assert self.hive_client.update_user(self) == self
 
 
 UserLike = TypeVar("UserLike", User, int)
